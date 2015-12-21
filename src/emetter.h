@@ -5,33 +5,34 @@
 #include <list>
 
 #include "particle.h"
+#include "particleconfiguration.h"
 
 class Emetter
 {
 public:
-    Emetter(unsigned int nbParticles);
+    Emetter(const QString& filename);
     glm::vec3* getData();
-
     unsigned int getSize() const;
+
+    const ParticleConfiguration& getConfiguration() const;
+
+    void setActive(bool active);
+    bool isActive() const;
 
     void update(float time);
     void setOrigin(const glm::vec3& origin);
 
-
-    void setActive(bool isActive);
-
 protected:
-    std::list<Particle> _particles;
-    unsigned int _nbMaxParticles;
+    glm::vec3 randomInitialSpeed();
+
     glm::vec3 * _data;
-    float _totalTime;
-
-    float _newParticleTimer;
-
+    ParticleConfiguration _config;
     glm::vec3 _origin;
-
     bool _isActive;
 
+    QVector<Particle> _particles;
+
+    float _timeLastCreation;
 };
 
 #endif // EMETTER_H

@@ -1,0 +1,15 @@
+{
+    "forces" : [
+        {"x":0, "y":0, "z":-1},
+        {"x":0, "y":-1, "z":0}
+    ],
+    "image": "data/nico.png",
+    "initial-speed": {
+        "x":{"min":-1, "max":1},
+        "y":{"min":0, "max":0},
+        "z":{"min":1, "max":1}
+    },
+    "life-time": 5,
+    "max-particles": 2000,
+    "creation-time": 0.01
+}

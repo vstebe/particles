@@ -3,6 +3,7 @@
 
 #include "openglwindow.h"
 #include "emetter.h"
+#include "particleconfiguration.h"
 
 #include <string>
 #include <iostream>
@@ -132,9 +133,6 @@ private:
     GLuint      			m_iUniformWorld;            ///< GLSL uniform location for World matrix
     GLuint      			m_iUniformView;             ///< GLSL uniform location for View matrix
     GLuint      			m_iUniformProjection;       ///< GLSL uniform location for Projection matrix
-
-    GLuint                  m_iParticleBuffer[2];
-    GLuint                  m_transformFeedback[2];
 
     //------------------------------------------------------------------------------------
     QTime       			m_timer;                    ///< Time used to get elapsed time between 2 frames

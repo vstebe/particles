@@ -1,7 +1,5 @@
 #include "main.h"
 
-#include <QTimer>
-#include "particle.h"
 
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
@@ -37,7 +35,7 @@ TPGLWindow::TPGLWindow()
     , m_iUniformSampler (0)
     , m_iGPUGeometryShaderID(0)         //--------------------------------------
     , m_bAlphaBlend         ( false )
-    , m_emetter             (50)
+    , m_emetter             (TP_PATH_TO_DATA "nico_bomber.json")
 {
     m_vCameraPosition   = glm::vec3(0,0,fCameraZInit);
 
@@ -289,8 +287,8 @@ void TPGLWindow::createTextures()
 
     // IMAGE EARTH
     // pDataImage0 : POINTER on IMAGE RGBA (4 bytes per pixel)
-    std::string filename = TP_PATH_TO_DATA "/smoke.png";
-    QImage img(filename.c_str());
+    QString filename = m_emetter.getConfiguration().getImage();
+    QImage img(filename);
     QImage img0 = img.convertToFormat(QImage::Format_RGBA8888_Premultiplied,Qt::NoOpaqueDetection);
 
     unsigned char* pDataImage0 = img0.scanLine(0);
@@ -329,19 +327,13 @@ void TPGLWindow::setupTexturesInUnit()
     glBindTexture( GL_TEXTURE_2D, m_iTexture );
 }
 
-struct Particle2
-{
-    float Type;
-    glm::vec3 Pos;
-    glm::vec3 Vel;
-    float LifetimeMillis;
-};
-
 //====================================================================================================================================
 void TPGLWindow::initialize()
 {
     // Prints the GL Version
     TP_LOG("GL Version : %s\n",(char*)glGetString(GL_VERSION));
+
+    ParticleConfiguration config(TP_PATH_TO_DATA "nico_bomber.json");
 
     createGPUVertexShader();
     createGPUGeometryShader();
@@ -353,32 +345,6 @@ void TPGLWindow::initialize()
 
     createVBO();
     createVAOFromVBO();
-
-
-    Particle2 Particles[200];
-    for(int i=0; i<200; i++) {
-
-    Particles[i].Type = 0;
-    Particles[i].Pos = glm::vec3(0.0f, 0.f, 0.0f);;
-    Particles[i].Vel = glm::vec3(0.0f, 0.0001f, 0.0f);
-    Particles[i].LifetimeMillis = 0.0f;
-    }
-
-    glGenTransformFeedbacks(2, m_transformFeedback);
-    glGenBuffers(2, m_particleBuffer);
-
-    for (unsigned int i = 0; i < 2 ; i++) {
-        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[i]);
-        glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[i]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Particles), Particles, GL_DYNAMIC_DRAW);
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
-    }
-
-
-    const GLchar* Varyings[1];
-        Varyings[0] = "GenPos";
-
-    glTransformFeedbackVaryings(m_iGPUProgramID, 1, Varyings, GL_INTERLEAVED_ATTRIBS);
 
     createTextures();
 }
@@ -414,7 +380,7 @@ void TPGLWindow::update()
     // Update light position, so that it is animated
     float   fTimeElapsed        = (float) m_timer.restart();
 
-    //m_emetter.update(fTimeElapsed);
+    m_emetter.update(fTimeElapsed / 1000.f);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_iVBOPosition);
             glBufferData(GL_ARRAY_BUFFER, m_iVertexCount * sizeof(glm::vec3), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
@@ -476,25 +442,8 @@ void TPGLWindow::render()
         glDisable( GL_BLEND );
     }
 
-    static glm::vec4 color(0.05f, 0.2f, 0.3f, 1.0f);
-    static QTime timerColor;
-    static float speedR = 1;
-    static float speedG = 2;
-    static float speedB = 3;
-
-    float time = (float) timerColor.restart() / 40;
-
-    color.x += speedR * time/1000.f;
-    if(color.x > 1.f) speedR = -1 * speedR;
-    color.y += speedG * time/1000.f;
-     if(color.y > 1.f) speedG = -1 * speedG;
-    color.z += speedB * time/1000.f;
-     if(color.z > 1.f) speedB = -1 * speedB;
-
-
-
     // Specify the color to use when clearing theframebuffer --------------------------------------
-    glClearColor(color.x, color.y, color.z, 1);
+    glClearColor( 0.05f, 0.2f, 0.3f, 1.0f );
 
     // Clears the framebuffer ---------------------------------------------------------------------
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
@@ -542,7 +491,7 @@ void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
     float x = 1.f - 2.f * (float) event->x() / this->width();
     float y = 1.f - 2.f * (float) (this->height() - event->y()) / this->height();
 
-    glm::vec4 vec(-m_vCameraPosition.z*x,0, -m_vCameraPosition.z*y, 1);
+    glm::vec4 vec(-4*x,0, -4*y, 1);
 
     glm::vec4 vec2 = vec * glm::inverse(m_mtxCameraProjection * m_mtxCameraView * m_mtxObjectWorld  );
 
@@ -613,14 +562,6 @@ void TPGLWindow::keyPressEvent(QKeyEvent* _pEvent)
         case Qt::Key_Space:
             m_vObjectEulerAngles -= glm::vec3(0, glm::radians(1.0f), 0);
             bHasObjectMoved = true;
-            break;
-
-        case Qt::Key_G:
-            Particle::_gravityForce.z -= 0.1f;
-            break;
-
-        case Qt::Key_H:
-            Particle::_gravityForce.z += 0.1f;
             break;
 
         case Qt::Key_Return:

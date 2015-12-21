@@ -1,2 +1,0 @@
-# particles
-OpenGL Project

@@ -6,22 +6,25 @@
 class Particle
 {
 public:
-    Particle(const glm::vec3&  pos, const glm::vec3& velocity, float lifeSpan);
-    void update(float time);
-    bool isAlive();
-    const glm::vec3& getPosition() const;
+    Particle(const glm::vec3 &pos, const glm::vec3 &velocity, float lifeTime);
+    Particle(const glm::vec3 &pos, const glm::vec3 &velocity);
+    Particle();
 
-    static glm::vec3 _gravityForce;
-    static glm::vec3 _windForceRight;
-    static glm::vec3 _windForceLeft;
+    bool isAlive() const;
+
+    const glm::vec3& getPosition() const;
+    void setPosition(const glm::vec3 &position);
+
+    const glm::vec3& getVelocity() const;
+    void setVelocity(const glm::vec3 &velocity);
+
+    float getLifeTime() const;
+    void setLifeTime(float lifeTime);
 
 protected:
-    glm::vec3  _pos;
+    glm::vec3 _position;
     glm::vec3 _velocity;
-
-
-    float _totalTime;
-    float _lifeSpan;
+    float _lifeTime;
 
 };
 

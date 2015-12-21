@@ -13,7 +13,7 @@ void main()
 {
     vec4 pos = gl_in[0].gl_Position;
 
-    float alpha = 1;
+    float alpha = 0.1;
     billColor = vs_out_billColor[0];
     gl_Position = u_mtxProjection * (pos + vec4(0, 0, 0, 0));
     texCoord = vec2(1,1);
