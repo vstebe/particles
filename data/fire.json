@@ -1,19 +1,19 @@
 {
     "forces" : [
-        {"x":0, "y":0, "z":1}
+        {"x":0, "y":0, "z":0}
     ],
     "attract-force" : {
-        "point": {"x":0, "y":0, "z":1},
-        "norm":3
+        "point": {"x":0, "y":0, "z":0.5},
+        "norm":5
     },
     "image": "data/img/flame.png",
     "initial-speed": {
-        "x":{"min":-0.5, "max":0.5},
-        "y":{"min":-0.5, "max":0.5},
+        "x":{"min":-0.1, "max":0.1},
+        "y":{"min":-0.1, "max":0.1},
         "z":{"min":0, "max":0}
     },
     "life-time": 1.5,
-    "max-particles": 1000,
+    "max-particles": 100,
     "creation-time": 0.05,
     "color": {
         "r":0.5,

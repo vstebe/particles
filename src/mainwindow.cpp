@@ -11,6 +11,18 @@ MainWindow::MainWindow(QWidget *parent) :
     _glWindow(new TPGLWindow)
 {
     ui->setupUi(this);
+
+
+    QSurfaceFormat format;
+    #ifdef Q_OS_LINUX  // what about Linux ?
+        format.setMajorVersion(3);
+        format.setMinorVersion(3);
+        format.setProfile(QSurfaceFormat::CoreProfile);
+    #endif
+    format.setSamples(16);
+    format.setDepthBufferSize(24);
+    _glWindow->setFormat(format);
+
     ui->leftSideLayout->addWidget(QWidget::createWindowContainer(_glWindow, this));
 
 
