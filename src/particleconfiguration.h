@@ -32,6 +32,8 @@ public:
     const glm::vec3& getAttractForcePoint() const;
     float getAttractForceNorm() const;
 
+    float getRotationVelocity() const;
+
 protected:
     glm::vec3 parseVec3(const QJsonObject &obj);
     Range<glm::vec3> parseRangeVec3(const QJsonObject &obj);
@@ -49,6 +51,7 @@ protected:
     bool _attractForceSet;
     glm::vec3 _attractForcePoint;
     float _attractForceNorm;
+    float _rotationVelocity;
 };
 
 #endif // PARTICLECONFIGURATION_H

@@ -21,10 +21,19 @@ public:
     float getLifeTime() const;
     void setLifeTime(float lifeTime);
 
+    float getRotation() const;
+    void setRotation(float rotation);
+
+    float getRotationVelocity() const;
+    void setRotationVelocity(float rotationVelocity);
+
 protected:
     glm::vec3 _position;
     glm::vec3 _velocity;
     float _lifeTime;
+
+    float _rotation;
+    float _rotationVelocity;
 
 };
 

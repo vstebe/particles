@@ -16,17 +16,19 @@ Emetter::Emetter(const ParticleConfiguration &config) :
 {
     _data = new glm::vec3[_config.getMaxParticles()];
     _colorData = new glm::vec4[_config.getMaxParticles()];
+    _rotationData = new GLfloat[_config.getMaxParticles()];
 
     _particles.clear();
 
     for(int i = 0; i<_config.getMaxParticles(); i++) {
         _data[i] = glm::vec3(0.f, 1.f, 0.f);
         _colorData[i] = _config.getColor();
+        _rotationData[i] = 0.f;
+        _particles.push_back(Particle(_origin, randomInitialSpeed()));
+        _particles.back().setRotationVelocity(_config.getRotationVelocity());
+
     }
 
-    for(int i = 0; i<_config.getMaxParticles(); i++) {
-        _particles.push_back(Particle(_origin, randomInitialSpeed()));
-    }
 }
 
 
@@ -88,6 +90,11 @@ glm::vec4 *Emetter::getColorData()
     return _colorData;
 }
 
+GLfloat *Emetter::getRotationData()
+{
+    return _rotationData;
+}
+
 void Emetter::setActive(bool active)
 {
     _isActive = active;
@@ -129,6 +136,8 @@ void Emetter::update(float time)
                 _particles[i].setVelocity(_particles[i].getVelocity() + attractForce);
             }
 
+            _particles[i].setRotation(_particles[i].getRotation() + _particles[i].getRotationVelocity() * time);
+
 
             _particles[i].setPosition(_particles[i].getPosition() + _particles[i].getVelocity() * time);
         } else if(_isActive && _timeLastCreation >= _config.getCreationTime()) {
@@ -136,13 +145,18 @@ void Emetter::update(float time)
             _particles[i].setVelocity(randomInitialSpeed());
             _particles[i].setPosition(_origin);
 
+            _particles[i].setRotation(0.f);
+
             _timeLastCreation -= _config.getCreationTime();
         } else {
             _particles[i].setPosition(glm::vec3(-99,-99,-99));
         }
 
+
         _data[i] = _particles[i].getPosition();
         _colorData[i].a = _particles[i].getLifeTime() / _config.getLifeTime();
+        _rotationData[i] = _particles[i].getRotation();
+
 
         if(_particles[i].isAlive()) nbAlives++;
     }

@@ -7,6 +7,9 @@
 #include "particle.h"
 #include "particleconfiguration.h"
 
+#include <QOpenGLFunctions_3_3_Core>
+
+
 class Emetter
 {
 public:
@@ -15,6 +18,7 @@ public:
 
     glm::vec3* getData();
     glm::vec4* getColorData();
+    GLfloat* getRotationData();
 
     unsigned int getSize() const;
 
@@ -40,6 +44,7 @@ protected:
 
     glm::vec3 * _data;
     glm::vec4 * _colorData;
+    float * _rotationData;
 
     ParticleConfiguration _config;
     glm::vec3 _origin;

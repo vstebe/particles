@@ -2,18 +2,23 @@
     "forces" : [
         {"x":0, "y":0, "z":0}
     ],
+   "attract-force": {
+        "point":  {"x":0, "y":0, "z":1},
+        "norm": 1
+    },
     "image": "data/smoke.png",
     "initial-speed": {
-        "x":{"min":-0.005, "max":0.005},
-        "y":{"min":-0.005, "max":0.005},
-        "z":{"min":-0.005, "max":0.005}
+        "x":{"min":-0.05, "max":0.05},
+        "y":{"min":-0.05, "max":0.05},
+        "z":{"min":-0.05, "max":0.05}
     },
     "life-time": 20,
     "max-particles": 1000,
     "creation-time": 0.5,
     "color": {
-        "r":0.2,
+        "r":1,
         "g":1,
-        "b":0.2
-    }
+        "b":1
+    },
+    "rotation-velocity": 0.5
 }
