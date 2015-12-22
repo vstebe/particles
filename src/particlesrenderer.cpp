@@ -122,6 +122,11 @@ void ParticlesRenderer::render()
     glBindVertexArray( 0 );
 }
 
+Emetter *ParticlesRenderer::getEmetter()
+{
+    return &_emetter;
+}
+
 ParticlesRenderer::~ParticlesRenderer()
 {
     glDeleteBuffers(1, & _iVBOPosition);

@@ -11,7 +11,8 @@ Emetter::Emetter(const ParticleConfiguration &config) :
     _origin(0.f, 0.f, 0.f),
     _isActive(true),
     _timeLastCreation(0),
-    _config(config)
+    _config(config),
+    _useCustomAttractPoint(false)
 {
     _data = new glm::vec3[_config.getMaxParticles()];
     _colorData = new glm::vec4[_config.getMaxParticles()];
@@ -31,6 +32,21 @@ Emetter::Emetter(const ParticleConfiguration &config) :
 
 void Emetter::setOrigin(const glm::vec3 &origin) {
     _origin = origin;
+}
+
+bool Emetter::useCustomAttractPoint() const
+{
+    return _useCustomAttractPoint;
+}
+
+void Emetter::setUseCustomAttractPoint(bool use)
+{
+    _useCustomAttractPoint = use;
+}
+
+void Emetter::setCustomAttractPoint(const glm::vec3 &point)
+{
+    _customAttractPoint = point;
 }
 
 Emetter::~Emetter()
@@ -94,6 +110,12 @@ void Emetter::update(float time)
 
     globalForce *= time;
 
+    glm::vec3 attractForcePoint;
+    if(_useCustomAttractPoint)
+        attractForcePoint = _customAttractPoint;
+    else
+        attractForcePoint = _config.getAttractForcePoint();
+
     int nbAlives = 0;
 
     for(int i=0; i<_particles.size(); i++) {
@@ -102,9 +124,9 @@ void Emetter::update(float time)
             _particles[i].setVelocity(_particles[i].getVelocity() + globalForce);
 
             if(_config.isAttractForceSet()) {
-                glm::vec3 attractForce = time * glm::normalize(_config.getAttractForcePoint() - _origin - _particles[i].getPosition());
+                glm::vec3 attractForce = time * glm::normalize(attractForcePoint - _origin - _particles[i].getPosition());
                 attractForce *= _config.getAttractForceNorm();
-                _particles[i].setVelocity(_particles[i].getVelocity() + attractForce * time);
+                _particles[i].setVelocity(_particles[i].getVelocity() + attractForce);
             }
 
 

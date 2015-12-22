@@ -4,16 +4,16 @@
     ],
     "image": "data/smoke.png",
     "initial-speed": {
-        "x":{"min":-0.05, "max":0.05},
-        "y":{"min":-0.05, "max":0.05},
-        "z":{"min":-0.05, "max":0.05}
+        "x":{"min":-0.005, "max":0.005},
+        "y":{"min":-0.005, "max":0.005},
+        "z":{"min":-0.005, "max":0.005}
     },
     "life-time": 20,
     "max-particles": 1000,
     "creation-time": 0.5,
     "color": {
-        "r":1,
+        "r":0.2,
         "g":1,
-        "b":1
+        "b":0.2
     }
 }

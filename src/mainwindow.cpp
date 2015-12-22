@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(openTreeFile(QModelIndex)));
 
+    connect(ui->comboMouseBehaviour, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMouseBehaviour(int)));
+
     connect(this, SIGNAL(jsonChanged(QString)), _glWindow, SLOT(setJsonData(QString)));
 }
 
@@ -88,4 +90,9 @@ void MainWindow::save()
     QTextStream outStream(&file);
     outStream << ui->txtJson->toPlainText();
     file.close();
+}
+
+void MainWindow::changeMouseBehaviour(int index)
+{
+    _glWindow->setMouseBehabiour((TPGLWindow::MouseBehaviour) index);
 }

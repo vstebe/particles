@@ -26,6 +26,11 @@ public:
     void update(float time);
     void setOrigin(const glm::vec3& origin);
 
+    bool useCustomAttractPoint() const;
+    void setUseCustomAttractPoint(bool use);
+
+    void setCustomAttractPoint(const glm::vec3& point);
+
     glm::vec3 mouse;
 
     ~Emetter();
@@ -43,6 +48,9 @@ protected:
     QVector<Particle> _particles;
 
     float _timeLastCreation;
+
+    bool _useCustomAttractPoint;
+    glm::vec3 _customAttractPoint;
 };
 
 #endif // EMETTER_H

@@ -33,6 +33,8 @@ class TPGLWindow : public OpenGLWindow
 {
     Q_OBJECT
 public:
+    enum MouseBehaviour {NONE, MOVE_EMETTER, MOVE_ATTRACT_POINT};
+
     TPGLWindow();
     virtual ~TPGLWindow();
 
@@ -45,6 +47,7 @@ public:
 
 public slots:
     void setJsonData(const QString& json);
+    void setMouseBehabiour(MouseBehaviour behaviour);
 
 private:
 
@@ -160,6 +163,8 @@ private:
 
 
     ParticlesRenderer*      m_particlesRenderer;
+
+    MouseBehaviour          m_mouseBehaviour;
 
 
 };

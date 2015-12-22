@@ -64,6 +64,7 @@ TPGLWindow::TPGLWindow()
     , m_iGPUGeometryShaderID(0)         //--------------------------------------
     , m_bAlphaBlend         ( false )
     , m_particlesRenderer   ( NULL )
+    , m_mouseBehaviour      ( NONE )
 {
     m_vCameraPosition   = glm::vec3(0,0,fCameraZInit);
 
@@ -369,6 +370,14 @@ void TPGLWindow::setJsonData(const QString &json)
     m_particlesRenderer = new ParticlesRenderer(ParticleConfiguration(json));
 }
 
+void TPGLWindow::setMouseBehabiour(TPGLWindow::MouseBehaviour behaviour)
+{
+    m_mouseBehaviour = behaviour;
+    if(m_mouseBehaviour != MOVE_EMETTER && m_particlesRenderer) {
+        m_particlesRenderer->getEmetter()->setOrigin(glm::vec3(0,0,0));
+    }
+}
+
 //====================================================================================================================================
 void TPGLWindow::render()
 {
@@ -467,11 +476,19 @@ void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
     glm::vec4 test(1.f, 0.f, 1.f, 1.f);
     glm::vec4 test2 = m_mtxCameraProjection * m_mtxCameraView * m_mtxObjectWorld * test;
 
-    //std::cout << "TEST : " << test2.x << " " << test2.y << " " << test2.z << std::endl;
+    glm::vec3 final(vec2.x, 0.f, vec2.y);
 
-    //std::cout << "WIN : " << x << " " << y << " " << 0 << std::endl;
-    //std::cout << "WORLD : " << vec2.x << " " << vec2.y << " " << vec2.z << std::endl;
-    //m_emetter.setOrigin(glm::vec3(vec2.x, 0.f, vec2.y));
+    if(m_particlesRenderer) {
+        switch(m_mouseBehaviour) {
+        m_particlesRenderer->getEmetter()->setUseCustomAttractPoint(false);
+        case MOVE_EMETTER:
+                m_particlesRenderer->getEmetter()->setOrigin(final);
+            break;
+        case MOVE_ATTRACT_POINT:
+                m_particlesRenderer->getEmetter()->setUseCustomAttractPoint(true);
+                m_particlesRenderer->getEmetter()->setCustomAttractPoint(final);
+        }
+    }
 
 }
 

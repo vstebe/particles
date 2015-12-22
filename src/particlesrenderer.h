@@ -15,6 +15,8 @@ public:
 
     void render();
 
+    Emetter * getEmetter();
+
     ~ParticlesRenderer();
 
 protected:

@@ -24,6 +24,7 @@ public slots:
     void apply();
     void createFile();
     void save();
+    void changeMouseBehaviour(int index);
 
 signals:
     void jsonChanged(const QString&);
