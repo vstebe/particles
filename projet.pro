@@ -31,16 +31,21 @@ INCLUDEPATH += include/
 
 VPATH   =   $$PWD/src
 HEADERS +=  openglwindow.h \
-            main.h \
     src/emetter.h \
     src/particle.h \
-    src/particleconfiguration.h
+    src/particleconfiguration.h \
+    src/mainwindow.h \
+    src/tpglwindow.h \
+    src/particlesrenderer.h
 
 SOURCES +=  openglwindow.cpp \
-            main.cpp \
     src/emetter.cpp \
     src/particle.cpp \
-    src/particleconfiguration.cpp
+    src/particleconfiguration.cpp \
+    src/mainwindow.cpp \
+    src/tpglwindow.cpp \
+    src/main.cpp \
+    src/particlesrenderer.cpp
 
 DISTFILES += \
     data/FS.glsl \

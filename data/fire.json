@@ -1,8 +1,11 @@
 {
     "forces" : [
-        {"x":1, "y":0, "z":0},
-        {"x":0, "y":0, "z":0}
+        {"x":0, "y":0, "z":1}
     ],
+    "attract-force" : {
+        "point": {"x":0, "y":0, "z":1},
+        "norm":3
+    },
     "image": "data/img/flame.png",
     "initial-speed": {
         "x":{"min":-0.5, "max":0.5},

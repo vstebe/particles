@@ -10,7 +10,7 @@
 class ParticleConfiguration
 {
 public:
-    ParticleConfiguration(const QString& filename);
+    ParticleConfiguration(const QString& json);
 
     template<typename T> class Range {
     public:
@@ -18,6 +18,7 @@ public:
         Range(T pmin, T pmax) :min(pmin), max(pmax) {}
         Range() : min(0), max(0) {}
     };
+
 
     const QVector<glm::vec3>& getForces() const;
     const Range<glm::vec3>& getInitialSpeed() const;
@@ -27,10 +28,15 @@ public:
     float getCreationTime() const;
     const glm::vec4& getColor() const;
 
+    bool isAttractForceSet() const;
+    const glm::vec3& getAttractForcePoint() const;
+    float getAttractForceNorm() const;
+
 protected:
     glm::vec3 parseVec3(const QJsonObject &obj);
     Range<glm::vec3> parseRangeVec3(const QJsonObject &obj);
     glm::vec4 parseColor(const QJsonObject& obj);
+
 
     QVector<glm::vec3> _forces;
     Range<glm::vec3> _initialSpeed;
@@ -39,6 +45,10 @@ protected:
     float _lifeTime;
     float _creationTime;
     glm::vec4 _color;
+
+    bool _attractForceSet;
+    glm::vec3 _attractForcePoint;
+    float _attractForceNorm;
 };
 
 #endif // PARTICLECONFIGURATION_H

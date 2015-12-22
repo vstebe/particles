@@ -6,14 +6,10 @@
 #include <QJsonDocument>
 #include <QDebug>
 
-ParticleConfiguration::ParticleConfiguration(const QString& filename)
+ParticleConfiguration::ParticleConfiguration(const QString& json)
 {
-    qDebug() << "Loading " << filename;
 
-    QFile file(filename);
-    file.open(QIODevice::ReadOnly);
-
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
 
     QJsonObject root = doc.object();
     QJsonArray forces = root["forces"].toArray();
@@ -40,6 +36,14 @@ ParticleConfiguration::ParticleConfiguration(const QString& filename)
     _creationTime = (float) root["creation-time"].toDouble();
 
     _color = parseColor(root["color"].toObject());
+
+    if(root["attract-force"].isObject()) {
+        _attractForceSet = true;
+        _attractForcePoint = parseVec3(root["attract-force"].toObject()["point"].toObject());
+        _attractForceNorm = root["attract-force"].toObject()["norm"].toDouble();
+    } else {
+        _attractForceSet = false;
+    }
 
 }
 
@@ -92,6 +96,21 @@ float ParticleConfiguration::getCreationTime() const
 const glm::vec4 &ParticleConfiguration::getColor() const
 {
     return _color;
+}
+
+bool ParticleConfiguration::isAttractForceSet() const
+{
+    return _attractForceSet;
+}
+
+const glm::vec3 &ParticleConfiguration::getAttractForcePoint() const
+{
+    return _attractForcePoint;
+}
+
+float ParticleConfiguration::getAttractForceNorm() const
+{
+    return _attractForceNorm;
 }
 
 int ParticleConfiguration::getMaxParticles() const

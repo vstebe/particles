@@ -10,7 +10,9 @@
 class Emetter
 {
 public:
-    Emetter(const QString& filename);
+    Emetter(const ParticleConfiguration& config);
+
+
     glm::vec3* getData();
     glm::vec4* getColorData();
 
@@ -25,6 +27,8 @@ public:
     void setOrigin(const glm::vec3& origin);
 
     glm::vec3 mouse;
+
+    ~Emetter();
 
 protected:
     glm::vec3 randomInitialSpeed();

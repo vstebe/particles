@@ -4,6 +4,7 @@
 #include "openglwindow.h"
 #include "emetter.h"
 #include "particleconfiguration.h"
+#include "particlesrenderer.h"
 
 #include <string>
 #include <iostream>
@@ -30,6 +31,7 @@
 
 class TPGLWindow : public OpenGLWindow
 {
+    Q_OBJECT
 public:
     TPGLWindow();
     virtual ~TPGLWindow();
@@ -39,6 +41,10 @@ public:
     void render();
 
     void update();
+
+
+public slots:
+    void setJsonData(const QString& json);
 
 private:
 
@@ -110,6 +116,7 @@ private:
 
 
 
+
     GLuint      			m_iGPUProgramID;            ///< OpenGL ID for GPU Program
     GLuint      			m_iGPUVertexShaderID;       ///< OpenGL ID for GPU VertexShader
     GLuint      			m_iGPUFragmentShaderID;     ///< OpenGL ID for GPU FragmentShader
@@ -152,7 +159,7 @@ private:
     bool                    m_bAlphaBlend;              ///< Use Alpha Blending ?
 
 
-    Emetter                 m_emetter;
+    ParticlesRenderer*      m_particlesRenderer;
 
 
 };
@@ -191,35 +198,7 @@ private:
 //------------------------------------------------------------------------------------
 
 
-//====================================================================================================================================
-std::string readFileSrc(const std::string& _rstrFilePath)
-{
-    //--------------------------------------------------------------------------------------------------------------------
-    // precondition
-    TP_ASSERT( _rstrFilePath.size() > 0 , "Invalid parameter _rstrFilePath(\"%s\") : size() must not be 0.\n", _rstrFilePath.c_str() );
-    //-----------------------------------------------------------------------------
 
-    TP_LOG("Opening file %s\n", _rstrFilePath.c_str() );
-
-    std::string strContent;
-
-
-    std::ifstream file(_rstrFilePath.c_str());
-    TP_ASSERT( file, "Could not open file %s\n", _rstrFilePath.c_str() );
-
-    file.seekg(0, std::ios::end);
-    strContent.reserve(file.tellg());
-    file.seekg(0, std::ios::beg);
-    strContent.assign((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());
-
-
-    //-----------------------------------------------------------------------------
-    // postcondition
-    TP_ASSERT( strContent.size() > 0 ,  "Invalid content read strContent(\"%s\") : size() must not be 0.\n", strContent.c_str() );
-    //-----------------------------------------------------------------------------
-
-    return strContent;
-}
 
 //====================================================================================================================================
 

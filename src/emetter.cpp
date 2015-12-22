@@ -5,14 +5,18 @@
 #include <iostream>
 #include <QtGlobal>
 #include <QDebug>
-Emetter::Emetter(const QString& filename) :
-    _config(filename),
+Emetter::Emetter(const ParticleConfiguration &config) :
+    _data(NULL),
+    _colorData(NULL),
     _origin(0.f, 0.f, 0.f),
-    _isActive(false),
-    _timeLastCreation(0)
+    _isActive(true),
+    _timeLastCreation(0),
+    _config(config)
 {
     _data = new glm::vec3[_config.getMaxParticles()];
     _colorData = new glm::vec4[_config.getMaxParticles()];
+
+    _particles.clear();
 
     for(int i = 0; i<_config.getMaxParticles(); i++) {
         _data[i] = glm::vec3(0.f, 1.f, 0.f);
@@ -22,13 +26,17 @@ Emetter::Emetter(const QString& filename) :
     for(int i = 0; i<_config.getMaxParticles(); i++) {
         _particles.push_back(Particle(_origin, randomInitialSpeed()));
     }
-
 }
-
 
 
 void Emetter::setOrigin(const glm::vec3 &origin) {
     _origin = origin;
+}
+
+Emetter::~Emetter()
+{
+    delete _data;
+    delete _colorData;
 }
 
 float fRandom(float LO, float HI) {
@@ -76,7 +84,6 @@ bool Emetter::isActive() const
 
 void Emetter::update(float time)
 {
-
     _timeLastCreation += time;
 
     glm::vec3 globalForce(0.f, 0.f, 0.f);
@@ -84,9 +91,6 @@ void Emetter::update(float time)
     for(int i=0; i<_config.getForces().size(); i++) {
         globalForce += _config.getForces()[i];
     }
-
-    glm::vec3 attractPoint = mouse;
-
 
     globalForce *= time;
 
@@ -97,10 +101,14 @@ void Emetter::update(float time)
             _particles[i].setLifeTime(_particles[i].getLifeTime() - time);
             _particles[i].setVelocity(_particles[i].getVelocity() + globalForce);
 
-            glm::vec3 attractForce = time * glm::normalize(attractPoint - _particles[i].getPosition());
-            _particles[i].setVelocity(_particles[i].getVelocity() + attractForce);
+            if(_config.isAttractForceSet()) {
+                glm::vec3 attractForce = time * glm::normalize(_config.getAttractForcePoint() - _origin - _particles[i].getPosition());
+                attractForce *= _config.getAttractForceNorm();
+                _particles[i].setVelocity(_particles[i].getVelocity() + attractForce * time);
+            }
 
-            _particles[i].setPosition(_particles[i].getPosition() + _particles[i].getVelocity() * time * 0.2f);
+
+            _particles[i].setPosition(_particles[i].getPosition() + _particles[i].getVelocity() * time);
         } else if(_isActive && _timeLastCreation >= _config.getCreationTime()) {
             _particles[i].setLifeTime(_config.getLifeTime());
             _particles[i].setVelocity(randomInitialSpeed());
@@ -116,6 +124,7 @@ void Emetter::update(float time)
 
         if(_particles[i].isAlive()) nbAlives++;
     }
+
 
 }
 
