@@ -5,8 +5,8 @@ uniform mat4 u_mtxWorld, u_mtxView, u_mtxProjection;
 layout(points) in;
 layout(triangle_strip, max_vertices=4) out;
 
-in vec3[] vs_out_billColor;
-out vec3 billColor;
+in vec4[] vs_out_billColor;
+out vec4 billColor;
 out vec2 texCoord;
 
 void main()
@@ -30,5 +30,4 @@ void main()
 
 
     EndPrimitive();
-    billColor = pos.rgb;
 }

@@ -7,22 +7,22 @@
 
 #define TP_PATH_TO_DATA "data/"
 
-static const float fCameraZInit = 4.f;
+static const float fCameraZInit = 1.f;
 
 //====================================================================================================================================
 TPGLWindow::TPGLWindow()
     : m_iGPUProgramID       (0)
     , m_iGPUVertexShaderID  (0)
     , m_iGPUFragmentShaderID(0)
-//    , m_iUniformColour      (0)
+//    , m_iUniformcolor      (0)
     , m_iVertexCount        (0)
     , m_iTrianglesCount     (0)
     , m_iElementsCount      (0)
     , m_iVAO                (0)
     , m_iAttribPosition     (0)
-//    , m_iAttribColour       (0)
+    , m_iAttribColor       (0)
     , m_iVBOPosition        (0)
-//    , m_iVBOColour          (0)
+    , m_iVBOColor          (0)
     , m_vObjectTranslate    (0)
     , m_vObjectEulerAngles  (0)
     , m_mtxObjectWorld      (0)
@@ -35,7 +35,7 @@ TPGLWindow::TPGLWindow()
     , m_iUniformSampler (0)
     , m_iGPUGeometryShaderID(0)         //--------------------------------------
     , m_bAlphaBlend         ( false )
-    , m_emetter             (TP_PATH_TO_DATA "nico_bomber.json")
+    , m_emetter             (TP_PATH_TO_DATA "fire.json")
 {
     m_vCameraPosition   = glm::vec3(0,0,fCameraZInit);
 
@@ -207,6 +207,7 @@ void TPGLWindow::getAttributeLocations()
     //--------------------------------------------------------------------------------------------------------------------
 
     m_iAttribPosition   = glGetAttribLocation(m_iGPUProgramID, "vtx_position");
+    m_iAttribColor     = glGetAttribLocation(m_iGPUProgramID, "vtx_color");
 }
 
 
@@ -245,6 +246,20 @@ void TPGLWindow::createVBO()
     // Unbinds the Buffer, we are done working on it !
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+
+    // Creates 1 Buffer object for POSITIONS ------------------------------------------------------------------------
+    glGenBuffers(1, &m_iVBOColor);
+
+    // Binds the Buffer, to say "we will work on this one from now"
+    glBindBuffer(GL_ARRAY_BUFFER, m_iVBOColor);
+    {
+        // Defines the type of Buffer data, the size in bytes, fills it with the given positions,
+        //      and finally specifies what kind of Draws we will do (so that the driver can optimize the how it will access it)
+        glBufferData(GL_ARRAY_BUFFER, m_iVertexCount * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
+    }
+    // Unbinds the Buffer, we are done working on it !
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 }
 
 //====================================================================================================================================
@@ -262,6 +277,13 @@ void TPGLWindow::createVAOFromVBO()
         glEnableVertexAttribArray( m_iAttribPosition );
         // Gives the right params
         glVertexAttribPointer( m_iAttribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0 );
+
+        // Binds the Buffer, to say "we will work on this one from now"
+        glBindBuffer( GL_ARRAY_BUFFER, m_iVBOColor );
+        // Enables the attribute id used for vtx_position
+        glEnableVertexAttribArray( m_iAttribColor );
+        // Gives the right params
+        glVertexAttribPointer( m_iAttribColor, 4, GL_FLOAT, GL_FALSE, 0, 0 );
     }
     // UnBinds the VAO, we are done working on it !
     glBindVertexArray(0);
@@ -271,6 +293,7 @@ void TPGLWindow::createVAOFromVBO()
 void TPGLWindow::destroyVAOAndVBO()
 {
     glDeleteBuffers(1, & m_iVBOPosition);
+    glDeleteBuffers(1, & m_iVBOColor);
 
     glDeleteVertexArrays(1, & m_iVAO);
 }
@@ -333,7 +356,7 @@ void TPGLWindow::initialize()
     // Prints the GL Version
     TP_LOG("GL Version : %s\n",(char*)glGetString(GL_VERSION));
 
-    ParticleConfiguration config(TP_PATH_TO_DATA "nico_bomber.json");
+    m_emetter.setActive(true);
 
     createGPUVertexShader();
     createGPUGeometryShader();
@@ -386,6 +409,10 @@ void TPGLWindow::update()
             glBufferData(GL_ARRAY_BUFFER, m_iVertexCount * sizeof(glm::vec3), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
             glBufferSubData(GL_ARRAY_BUFFER, 0, m_iVertexCount * sizeof(glm::vec3), m_emetter.getData());
 
+    glBindBuffer(GL_ARRAY_BUFFER, m_iVBOColor);
+            glBufferData(GL_ARRAY_BUFFER, m_iVertexCount * sizeof(glm::vec4), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
+            glBufferSubData(GL_ARRAY_BUFFER, 0, m_iVertexCount * sizeof(glm::vec4), m_emetter.getColorData());
+
 
     // make sure the matrix data are init to some valid values
     updateMatrices();
@@ -426,20 +453,21 @@ void TPGLWindow::render()
 
         // Enables Alpha Blending ----------------------------------------------------------------------
         glEnable( GL_BLEND );
-        glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
-    //    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    //    glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     }
     else
     {
-        // Enables Depth Test --------------------------------------------------------------------------
-        glEnable( GL_DEPTH_TEST );
-        glDepthFunc( GL_LESS );
+        // Disables Depth Test --------------------------------------------------------------------------
+        glDisable( GL_DEPTH_TEST );
 
         // Enables Depth Write -------------------------------------------------------------------------
-        glDepthMask( GL_TRUE );
+        glDepthMask( GL_FALSE );
 
-        // Disables Alpha Blending ----------------------------------------------------------------------
-        glDisable( GL_BLEND );
+        // Enables Alpha Blending ----------------------------------------------------------------------
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+    //    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     }
 
     // Specify the color to use when clearing theframebuffer --------------------------------------
@@ -491,7 +519,7 @@ void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
     float x = 1.f - 2.f * (float) event->x() / this->width();
     float y = 1.f - 2.f * (float) (this->height() - event->y()) / this->height();
 
-    glm::vec4 vec(-4*x,0, -4*y, 1);
+    glm::vec4 vec(-fCameraZInit*x,0, -fCameraZInit*y, 1);
 
     glm::vec4 vec2 = vec * glm::inverse(m_mtxCameraProjection * m_mtxCameraView * m_mtxObjectWorld  );
 
@@ -502,7 +530,9 @@ void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
 
     //std::cout << "WIN : " << x << " " << y << " " << 0 << std::endl;
     //std::cout << "WORLD : " << vec2.x << " " << vec2.y << " " << vec2.z << std::endl;
-    m_emetter.setOrigin(glm::vec3(vec2.x, 0.f, vec2.y));
+    //m_emetter.setOrigin(glm::vec3(vec2.x, 0.f, vec2.y));
+
+    m_emetter.mouse = glm::vec3(vec2.x, 0.f, vec2.y);
 }
 
 //====================================================================================================================================

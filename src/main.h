@@ -120,7 +120,9 @@ private:
     GLuint      			m_iVAO;                     ///< VertexArrayObject used for drawing
 
     GLuint      			m_iAttribPosition;          ///< GLSL attribute location for vertex position
+    GLuint      			m_iAttribColor;            ///< GLSL attribute location for vertex colour
     GLuint      			m_iVBOPosition;             ///< VertexBufferObject used to store position vertex data, used by the VAO
+    GLuint      			m_iVBOColor;               ///< VertexBufferObject used to store position vertex colour, used by the VAO
 
     //------------------------------------------------------------------------------------
     glm::vec3   			m_vObjectTranslate;         ///< Store the 3D object translate component

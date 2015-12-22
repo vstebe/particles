@@ -12,6 +12,8 @@ class Emetter
 public:
     Emetter(const QString& filename);
     glm::vec3* getData();
+    glm::vec4* getColorData();
+
     unsigned int getSize() const;
 
     const ParticleConfiguration& getConfiguration() const;
@@ -22,10 +24,14 @@ public:
     void update(float time);
     void setOrigin(const glm::vec3& origin);
 
+    glm::vec3 mouse;
+
 protected:
     glm::vec3 randomInitialSpeed();
 
     glm::vec3 * _data;
+    glm::vec4 * _colorData;
+
     ParticleConfiguration _config;
     glm::vec3 _origin;
     bool _isActive;

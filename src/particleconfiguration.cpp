@@ -39,7 +39,8 @@ ParticleConfiguration::ParticleConfiguration(const QString& filename)
 
     _creationTime = (float) root["creation-time"].toDouble();
 
-    qDebug() << root;
+    _color = parseColor(root["color"].toObject());
+
 }
 
 const QVector<glm::vec3> &ParticleConfiguration::getForces() const
@@ -65,6 +66,19 @@ ParticleConfiguration::Range<glm::vec3> ParticleConfiguration::parseRangeVec3(co
     return ParticleConfiguration::Range<glm::vec3>(min, max);
 }
 
+glm::vec4 ParticleConfiguration::parseColor(const QJsonObject &obj)
+{
+    float r = (float) obj["r"].toDouble();
+    float g = (float) obj["g"].toDouble();
+    float b = (float) obj["b"].toDouble();
+    float a;
+    if(obj["a"].isDouble())
+        a = obj["a"].toDouble();
+    else
+        a = 1.f;
+    return glm::vec4(r,g,b,a);
+}
+
 float ParticleConfiguration::getLifeTime() const
 {
     return _lifeTime;
@@ -73,6 +87,11 @@ float ParticleConfiguration::getLifeTime() const
 float ParticleConfiguration::getCreationTime() const
 {
     return _creationTime;
+}
+
+const glm::vec4 &ParticleConfiguration::getColor() const
+{
+    return _color;
 }
 
 int ParticleConfiguration::getMaxParticles() const

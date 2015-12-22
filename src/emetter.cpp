@@ -1,5 +1,7 @@
 #include "emetter.h"
 
+#include <glm/glm.hpp>
+
 #include <iostream>
 #include <QtGlobal>
 #include <QDebug>
@@ -10,9 +12,11 @@ Emetter::Emetter(const QString& filename) :
     _timeLastCreation(0)
 {
     _data = new glm::vec3[_config.getMaxParticles()];
+    _colorData = new glm::vec4[_config.getMaxParticles()];
 
     for(int i = 0; i<_config.getMaxParticles(); i++) {
         _data[i] = glm::vec3(0.f, 1.f, 0.f);
+        _colorData[i] = _config.getColor();
     }
 
     for(int i = 0; i<_config.getMaxParticles(); i++) {
@@ -55,6 +59,11 @@ glm::vec3 * Emetter::getData() {
     return _data;
 }
 
+glm::vec4 *Emetter::getColorData()
+{
+    return _colorData;
+}
+
 void Emetter::setActive(bool active)
 {
     _isActive = active;
@@ -76,6 +85,9 @@ void Emetter::update(float time)
         globalForce += _config.getForces()[i];
     }
 
+    glm::vec3 attractPoint = mouse;
+
+
     globalForce *= time;
 
     int nbAlives = 0;
@@ -84,16 +96,23 @@ void Emetter::update(float time)
         if(_particles[i].isAlive()) {
             _particles[i].setLifeTime(_particles[i].getLifeTime() - time);
             _particles[i].setVelocity(_particles[i].getVelocity() + globalForce);
-            _particles[i].setPosition(_particles[i].getPosition() + _particles[i].getVelocity() * time);
+
+            glm::vec3 attractForce = time * glm::normalize(attractPoint - _particles[i].getPosition());
+            _particles[i].setVelocity(_particles[i].getVelocity() + attractForce);
+
+            _particles[i].setPosition(_particles[i].getPosition() + _particles[i].getVelocity() * time * 0.2f);
         } else if(_isActive && _timeLastCreation >= _config.getCreationTime()) {
             _particles[i].setLifeTime(_config.getLifeTime());
             _particles[i].setVelocity(randomInitialSpeed());
             _particles[i].setPosition(_origin);
 
             _timeLastCreation -= _config.getCreationTime();
+        } else {
+            _particles[i].setPosition(glm::vec3(-99,-99,-99));
         }
 
         _data[i] = _particles[i].getPosition();
+        _colorData[i].a = _particles[i].getLifeTime() / _config.getLifeTime();
 
         if(_particles[i].isAlive()) nbAlives++;
     }

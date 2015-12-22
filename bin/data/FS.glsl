@@ -9,7 +9,7 @@ out vec4 out_fragColor;
 
 in vec2 texCoord;
 
-in vec3 billColor;
+in vec4 billColor;
 
 void main (void)
 {
@@ -21,10 +21,10 @@ void main (void)
      //   discard;
 
 
-    if(billColor == vec3(0,0,0))
-        discard;
+   // if(billColor == vec3(0,0,0))
+      //  discard;
 
     // TODO !
-    out_fragColor = color;// * vec4(billColor, 1);
+    out_fragColor = color * billColor;
     //out_fragColor = vec4(texCoord.x, texCoord.y, texCoord.x, texCoord.y);
 }

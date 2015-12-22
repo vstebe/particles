@@ -1,0 +1,20 @@
+{
+    "forces" : [
+        {"x":1, "y":0, "z":0},
+        {"x":0, "y":0, "z":0}
+    ],
+    "image": "data/img/flame.png",
+    "initial-speed": {
+        "x":{"min":-0.5, "max":0.5},
+        "y":{"min":-0.5, "max":0.5},
+        "z":{"min":0, "max":0}
+    },
+    "life-time": 1.5,
+    "max-particles": 1000,
+    "creation-time": 0.05,
+    "color": {
+        "r":0.5,
+        "g":0.5,
+        "b":0
+    }
+}

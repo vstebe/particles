@@ -4,6 +4,7 @@
 #include <QString>
 #include <QVector>
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <QJsonObject>
 
 class ParticleConfiguration
@@ -24,10 +25,12 @@ public:
     int getMaxParticles() const;
     float getLifeTime() const;
     float getCreationTime() const;
+    const glm::vec4& getColor() const;
 
 protected:
     glm::vec3 parseVec3(const QJsonObject &obj);
     Range<glm::vec3> parseRangeVec3(const QJsonObject &obj);
+    glm::vec4 parseColor(const QJsonObject& obj);
 
     QVector<glm::vec3> _forces;
     Range<glm::vec3> _initialSpeed;
@@ -35,6 +38,7 @@ protected:
     int _maxParticles;
     float _lifeTime;
     float _creationTime;
+    glm::vec4 _color;
 };
 
 #endif // PARTICLECONFIGURATION_H
