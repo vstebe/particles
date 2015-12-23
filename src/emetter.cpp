@@ -71,6 +71,18 @@ glm::vec3 Emetter::randomInitialSpeed()
     return glm::vec3(x,y,z);
 }
 
+float Emetter::getAlphaFromLife(float life)
+{
+    float progress = life / _config.getLifeTime();
+    progress = 1 - progress;
+
+    if(progress < 0.25f)
+        return progress * 4.f;
+
+    progress -= 0.25f;
+    return 1 - progress/0.75f;
+}
+
 
 
 
@@ -163,13 +175,15 @@ void Emetter::update(float time)
 
 
         _data[i] = _particles[i].getPosition();
-        _colorData[i].a = _particles[i].getLifeTime() / _config.getLifeTime();
+        _colorData[i].a = (GLfloat) getAlphaFromLife(_particles[i].getLifeTime());
         _rotationData[i] = _particles[i].getRotation();
         _sizeData[i] = _particles[i].getSize();
 
 
         if(_particles[i].isAlive()) nbAlives++;
     }
+
+    //qDebug() << _colorData[0].a;
 
 
 }

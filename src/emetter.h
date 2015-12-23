@@ -42,6 +42,7 @@ public:
 
 protected:
     glm::vec3 randomInitialSpeed();
+    float getAlphaFromLife(float life);
 
     glm::vec3 * _data;
     glm::vec4 * _colorData;

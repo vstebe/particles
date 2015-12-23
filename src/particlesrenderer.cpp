@@ -52,6 +52,8 @@ ParticlesRenderer::ParticlesRenderer(const ParticleConfiguration &config) :
     // Unbinds the Buffer, we are done working on it !
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    // Creates 1 Buffer object for POSITIONS ------------------------------------------------------------------------
+    glGenBuffers(1, &_iVBOSize);
     // Binds the Buffer, to say "we will work on this one from now"
     glBindBuffer(GL_ARRAY_BUFFER, _iVBOSize);
     {

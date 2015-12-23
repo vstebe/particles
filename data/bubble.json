@@ -9,12 +9,13 @@
         "y":{"min":-0.5, "max":0.5},
         "z":{"min":0, "max":0}
     },
-    "life-time": 3,
-    "max-particles": 1000,
-    "creation-time": 0.01,
+    "life-time": 2,
+    "max-particles": 2000,
+    "creation-time": 0.001,
     "color": {
         "r":1,
         "g":1,
         "b":1
-    }
+    },
+    "size": {"min":0, "max":0.01}
 }
