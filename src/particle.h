@@ -27,6 +27,9 @@ public:
     float getRotationVelocity() const;
     void setRotationVelocity(float rotationVelocity);
 
+    float getSize() const;
+    void setSize(float size);
+
 protected:
     glm::vec3 _position;
     glm::vec3 _velocity;
@@ -34,6 +37,8 @@ protected:
 
     float _rotation;
     float _rotationVelocity;
+
+    float _size;
 
 };
 

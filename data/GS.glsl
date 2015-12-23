@@ -8,6 +8,7 @@ layout(triangle_strip, max_vertices=4) out;
 in vec4[] vs_out_billColor;
 
 in float[] vs_out_rotation;
+in float[] vs_out_size;
 
 out vec4 billColor;
 out vec2 texCoord;
@@ -31,7 +32,7 @@ void main()
 
     mat4 rotMat = rotationMatrix(vec3(0,0,1), vs_out_rotation[0]);
 
-    float alpha = 0.1;
+    float alpha = vs_out_size[0];
     billColor = vs_out_billColor[0];
     gl_Position = u_mtxProjection * (pos + rotMat * vec4(-alpha, -alpha, 0, 0));
     texCoord = vec2(1,1);

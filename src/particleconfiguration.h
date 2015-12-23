@@ -34,6 +34,8 @@ public:
 
     float getRotationVelocity() const;
 
+    const Range<float>& getSize() const;
+
 protected:
     glm::vec3 parseVec3(const QJsonObject &obj);
     Range<glm::vec3> parseRangeVec3(const QJsonObject &obj);
@@ -42,6 +44,7 @@ protected:
 
     QVector<glm::vec3> _forces;
     Range<glm::vec3> _initialSpeed;
+    Range<float> _size;
     QString _image;
     int _maxParticles;
     float _lifeTime;

@@ -13,8 +13,8 @@
         "z":{"min":0, "max":0}
     },
     "life-time": 1.5,
-    "max-particles": 100,
-    "creation-time": 0.05,
+    "max-particles": 1000,
+    "creation-time": 0.005,
     "color": {
         "r":0.5,
         "g":0.5,

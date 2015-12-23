@@ -19,6 +19,7 @@ public:
     glm::vec3* getData();
     glm::vec4* getColorData();
     GLfloat* getRotationData();
+    GLfloat* getSizeData();
 
     unsigned int getSize() const;
 
@@ -45,6 +46,7 @@ protected:
     glm::vec3 * _data;
     glm::vec4 * _colorData;
     float * _rotationData;
+    float * _sizeData;
 
     ParticleConfiguration _config;
     glm::vec3 _origin;

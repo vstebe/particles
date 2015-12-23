@@ -17,6 +17,7 @@ Emetter::Emetter(const ParticleConfiguration &config) :
     _data = new glm::vec3[_config.getMaxParticles()];
     _colorData = new glm::vec4[_config.getMaxParticles()];
     _rotationData = new GLfloat[_config.getMaxParticles()];
+    _sizeData = new GLfloat[_config.getMaxParticles()];
 
     _particles.clear();
 
@@ -24,6 +25,7 @@ Emetter::Emetter(const ParticleConfiguration &config) :
         _data[i] = glm::vec3(0.f, 1.f, 0.f);
         _colorData[i] = _config.getColor();
         _rotationData[i] = 0.f;
+        _sizeData[i] = 0.1f;
         _particles.push_back(Particle(_origin, randomInitialSpeed()));
         _particles.back().setRotationVelocity(_config.getRotationVelocity());
 
@@ -95,6 +97,11 @@ GLfloat *Emetter::getRotationData()
     return _rotationData;
 }
 
+GLfloat *Emetter::getSizeData()
+{
+    return _sizeData;
+}
+
 void Emetter::setActive(bool active)
 {
     _isActive = active;
@@ -147,6 +154,8 @@ void Emetter::update(float time)
 
             _particles[i].setRotation(0.f);
 
+            _particles[i].setSize(fRandom(_config.getSize().min, _config.getSize().max));
+
             _timeLastCreation -= _config.getCreationTime();
         } else {
             _particles[i].setPosition(glm::vec3(-99,-99,-99));
@@ -156,6 +165,7 @@ void Emetter::update(float time)
         _data[i] = _particles[i].getPosition();
         _colorData[i].a = _particles[i].getLifeTime() / _config.getLifeTime();
         _rotationData[i] = _particles[i].getRotation();
+        _sizeData[i] = _particles[i].getSize();
 
 
         if(_particles[i].isAlive()) nbAlives++;

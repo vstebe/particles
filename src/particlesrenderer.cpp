@@ -6,7 +6,8 @@ ParticlesRenderer::ParticlesRenderer(const ParticleConfiguration &config) :
     _emetter            (config),
     _iAttribColor       (1),
     _iAttribPosition    (0),
-    _iAttribRotation    (2)
+    _iAttribRotation    (2),
+    _iAttribSize        (3)
 {
     initializeOpenGLFunctions();
 
@@ -51,6 +52,16 @@ ParticlesRenderer::ParticlesRenderer(const ParticleConfiguration &config) :
     // Unbinds the Buffer, we are done working on it !
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    // Binds the Buffer, to say "we will work on this one from now"
+    glBindBuffer(GL_ARRAY_BUFFER, _iVBOSize);
+    {
+        // Defines the type of Buffer data, the size in bytes, fills it with the given positions,
+        //      and finally specifies what kind of Draws we will do (so that the driver can optimize the how it will access it)
+        glBufferData(GL_ARRAY_BUFFER, _emetter.getSize() * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+    }
+    // Unbinds the Buffer, we are done working on it !
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     // Creates 1 VAO
     glGenVertexArrays( 1, &_iVAO );
 
@@ -77,6 +88,13 @@ ParticlesRenderer::ParticlesRenderer(const ParticleConfiguration &config) :
         glEnableVertexAttribArray( _iAttribRotation );
         // Gives the right params
         glVertexAttribPointer( _iAttribRotation, 1, GL_FLOAT, GL_FALSE, 0, 0 );
+
+        // Binds the Buffer, to say "we will work on this one from now"
+        glBindBuffer( GL_ARRAY_BUFFER, _iVBOSize );
+        // Enables the attribute id used for vtx_position
+        glEnableVertexAttribArray( _iAttribSize );
+        // Gives the right params
+        glVertexAttribPointer( _iAttribSize, 1, GL_FLOAT, GL_FALSE, 0, 0 );
     }
     // UnBinds the VAO, we are done working on it !
     glBindVertexArray(0);
@@ -119,10 +137,13 @@ void ParticlesRenderer::update(float fTimeElapsed)
             glBufferData(GL_ARRAY_BUFFER, _emetter.getSize() * sizeof(glm::vec4), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
             glBufferSubData(GL_ARRAY_BUFFER, 0, _emetter.getSize() * sizeof(glm::vec4), _emetter.getColorData());
 
-        glBindBuffer(GL_ARRAY_BUFFER, _iVBORotation);
-                glBufferData(GL_ARRAY_BUFFER, _emetter.getSize() * sizeof(float), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
-                glBufferSubData(GL_ARRAY_BUFFER, 0, _emetter.getSize() * sizeof(float), _emetter.getRotationData());
+    glBindBuffer(GL_ARRAY_BUFFER, _iVBORotation);
+            glBufferData(GL_ARRAY_BUFFER, _emetter.getSize() * sizeof(float), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
+            glBufferSubData(GL_ARRAY_BUFFER, 0, _emetter.getSize() * sizeof(float), _emetter.getRotationData());
 
+    glBindBuffer(GL_ARRAY_BUFFER, _iVBOSize);
+            glBufferData(GL_ARRAY_BUFFER, _emetter.getSize() * sizeof(float), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
+            glBufferSubData(GL_ARRAY_BUFFER, 0, _emetter.getSize() * sizeof(float), _emetter.getSizeData());
 
 }
 
@@ -154,6 +175,7 @@ ParticlesRenderer::~ParticlesRenderer()
     glDeleteBuffers(1, & _iVBOPosition);
     glDeleteBuffers(1, & _iVBOColor);
     glDeleteBuffers(1, & _iVBORotation);
+    glDeleteBuffers(1, & _iVBOSize);
     glDeleteTextures( 1, & _iTexture );
 
     glDeleteVertexArrays(1, & _iVAO);

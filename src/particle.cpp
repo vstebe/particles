@@ -10,7 +10,8 @@ Particle::Particle(const glm::vec3 &pos, const glm::vec3 &velocity, float lifeTi
     _velocity(velocity),
     _lifeTime(lifeTime),
     _rotation(0.f),
-    _rotationVelocity(2.f)
+    _rotationVelocity(2.f),
+    _size(1.f)
 {
 
 }
@@ -20,7 +21,8 @@ Particle::Particle(const glm::vec3 &pos, const glm::vec3 &velocity) :
     _velocity(velocity),
     _lifeTime(-1),
     _rotation(0.f),
-    _rotationVelocity(2.f)
+    _rotationVelocity(2.f),
+    _size(1.f)
 {
 
 }
@@ -30,7 +32,8 @@ Particle::Particle() :
     _velocity(0),
     _lifeTime(-1),
     _rotation(0.f),
-    _rotationVelocity(2.f)
+    _rotationVelocity(2.f),
+    _size(1.f)
 {
 
 }
@@ -88,5 +91,14 @@ float Particle::getRotationVelocity() const {
 void Particle::setRotationVelocity(float rotationVelocity)
 {
     _rotationVelocity = rotationVelocity;
+}
+
+float Particle::getSize() const
+{
+    return _size;
+}
+
+void Particle::setSize(float size) {
+    _size = size;
 }
 

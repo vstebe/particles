@@ -28,10 +28,12 @@ protected:
     GLuint  _iVBOPosition;
     GLuint  _iVBOColor;
     GLuint  _iVBORotation;
+    GLuint  _iVBOSize;
 
     GLuint  _iAttribPosition;
     GLuint  _iAttribColor;
     GLuint  _iAttribRotation;
+    GLuint  _iAttribSize;
 
     GLuint  _iTexture;
 };

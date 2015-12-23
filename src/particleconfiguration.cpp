@@ -48,6 +48,12 @@ ParticleConfiguration::ParticleConfiguration(const QString& json)
     _rotationVelocity = 0.f;
     if(root["rotation-velocity"].isDouble())
         _rotationVelocity = root["rotation-velocity"].toDouble();
+
+    _size = Range<float>(0.1f, 0.1f);
+    if(root["size"].isObject()) {
+        _size = Range<float>(root["size"].toObject()["min"].toDouble(),
+                             root["size"].toObject()["max"].toDouble());
+    }
 }
 
 const QVector<glm::vec3> &ParticleConfiguration::getForces() const
@@ -119,6 +125,11 @@ float ParticleConfiguration::getAttractForceNorm() const
 float ParticleConfiguration::getRotationVelocity() const
 {
     return _rotationVelocity;
+}
+
+const ParticleConfiguration::Range<float> &ParticleConfiguration::getSize() const
+{
+    return _size;
 }
 
 int ParticleConfiguration::getMaxParticles() const
