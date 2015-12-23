@@ -63,7 +63,7 @@ TPGLWindow::TPGLWindow()
     , m_iUniformSampler (0)
     , m_iGPUGeometryShaderID(0)         //--------------------------------------
     , m_bAlphaBlend         ( false )
-    , m_particlesRenderer   ( NULL )
+    , m_particlesRenderers   (0)
     , m_mouseBehaviour      ( NONE )
 {
     m_vCameraPosition   = glm::vec3(0,0,fCameraZInit);
@@ -313,10 +313,6 @@ void TPGLWindow::initialize()
     createVAOFromVBO();
 
 
-    QFile file("data/fire.json");
-    file.open(QIODevice::ReadOnly);
-
-    m_particlesRenderer = new ParticlesRenderer(ParticleConfiguration(file.readAll()));
 
 }
 
@@ -351,8 +347,8 @@ void TPGLWindow::update()
     // Update light position, so that it is animated
     float   fTimeElapsed        = (float) m_timer.restart();
 
-    if(m_particlesRenderer)
-        m_particlesRenderer->update(fTimeElapsed);
+    for(int i=0; i<m_particlesRenderers.size(); i++)
+        m_particlesRenderers[i]->update(fTimeElapsed);
 
     // make sure the matrix data are init to some valid values
     updateMatrices();
@@ -364,17 +360,49 @@ void TPGLWindow::update()
 
 void TPGLWindow::setJsonData(const QString &json)
 {
-    if(m_particlesRenderer)
-        delete m_particlesRenderer;
-
-    m_particlesRenderer = new ParticlesRenderer(ParticleConfiguration(json));
+    m_particleConfig = ParticleConfiguration(json);
+    if(m_particlesRenderers.empty())
+        setNumberEmetters(1);
+    else
+        setNumberEmetters(m_particlesRenderers.size());
 }
 
 void TPGLWindow::setMouseBehabiour(TPGLWindow::MouseBehaviour behaviour)
 {
     m_mouseBehaviour = behaviour;
-    if(m_mouseBehaviour != MOVE_EMETTER && m_particlesRenderer) {
-        m_particlesRenderer->getEmetter()->setOrigin(glm::vec3(0,0,0));
+    if(m_mouseBehaviour != MOVE_EMETTER && m_particlesRenderers.size()> 1) {
+        setNumberEmetters(m_particlesRenderers.size());
+    }
+}
+
+void TPGLWindow::setNumberEmetters(int n)
+{
+    for(unsigned int i=0; i<m_particlesRenderers.size(); i++)
+        delete m_particlesRenderers[i];
+    m_particlesRenderers.clear();
+
+    for(int i=0; i<n; i++)
+        m_particlesRenderers.push_back(new ParticlesRenderer(m_particleConfig));
+
+    switch(n) {
+        case 1:
+            m_particlesRenderers[0]->getEmetter()->setOrigin(glm::vec3(0,0,0));
+        break;
+        case 2:
+            m_particlesRenderers[0]->getEmetter()->setOrigin(glm::vec3(-0.33,0,0));
+            m_particlesRenderers[1]->getEmetter()->setOrigin(glm::vec3(0.33,0,0));
+        break;
+        case 3:
+            m_particlesRenderers[0]->getEmetter()->setOrigin(glm::vec3(-0.33,0,-0.2));
+            m_particlesRenderers[1]->getEmetter()->setOrigin(glm::vec3(0.33,0,-0.2));
+            m_particlesRenderers[2]->getEmetter()->setOrigin(glm::vec3(0,0,0.2));
+        break;
+        default:
+            m_particlesRenderers[0]->getEmetter()->setOrigin(glm::vec3(-0.33,0,0));
+            m_particlesRenderers[1]->getEmetter()->setOrigin(glm::vec3(0,0,-0.33));
+            m_particlesRenderers[2]->getEmetter()->setOrigin(glm::vec3(0,0,0.33));
+            m_particlesRenderers[3]->getEmetter()->setOrigin(glm::vec3(0.33,0,0));
+        break;
     }
 }
 
@@ -442,8 +470,8 @@ void TPGLWindow::render()
         // Sends the uniforms var from the CPU to the GPU -----------------------------------------
         sendUniformsToGPU();
 
-        if(m_particlesRenderer)
-            m_particlesRenderer->render();
+        for(int i=0; i<m_particlesRenderers.size(); i++)
+            m_particlesRenderers[i]->render();
 
     }
     // Stops using the GPU Program ----------------------------------------------------------------
@@ -478,17 +506,20 @@ void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
 
     glm::vec3 final(vec2.x, 0.f, vec2.y);
 
-    if(m_particlesRenderer) {
-        switch(m_mouseBehaviour) {
-        m_particlesRenderer->getEmetter()->setUseCustomAttractPoint(false);
-        case MOVE_EMETTER:
-                m_particlesRenderer->getEmetter()->setOrigin(final);
-            break;
-        case MOVE_ATTRACT_POINT:
-                m_particlesRenderer->getEmetter()->setUseCustomAttractPoint(true);
-                m_particlesRenderer->getEmetter()->setCustomAttractPoint(final);
+    for(unsigned int i=0; i<m_particlesRenderers.size(); i++)
+        m_particlesRenderers[i]->getEmetter()->setUseCustomAttractPoint(false);
+    switch(m_mouseBehaviour) {
+    case MOVE_EMETTER:
+            for(unsigned int i=0; i<m_particlesRenderers.size(); i++)
+                m_particlesRenderers[i]->getEmetter()->setOrigin(final);
+        break;
+    case MOVE_ATTRACT_POINT:
+        for(unsigned int i=0; i<m_particlesRenderers.size(); i++) {
+            m_particlesRenderers[i]->getEmetter()->setUseCustomAttractPoint(true);
+            m_particlesRenderers[i]->getEmetter()->setCustomAttractPoint(final);
         }
     }
+
 
 }
 

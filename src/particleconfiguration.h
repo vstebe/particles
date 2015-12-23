@@ -10,6 +10,7 @@
 class ParticleConfiguration
 {
 public:
+    ParticleConfiguration();
     ParticleConfiguration(const QString& json);
 
     template<typename T> class Range {

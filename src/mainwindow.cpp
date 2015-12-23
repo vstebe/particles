@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->comboMouseBehaviour, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMouseBehaviour(int)));
 
+    connect(ui->sliderEmetters, SIGNAL(valueChanged(int)), _glWindow, SLOT(setNumberEmetters(int)));
+
     connect(this, SIGNAL(jsonChanged(QString)), _glWindow, SLOT(setJsonData(QString)));
 }
 

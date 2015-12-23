@@ -26,6 +26,7 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
 #include <QtGui/QKeyEvent>
+#include <QVector>
 
 //====================================================================================================================================
 
@@ -48,6 +49,7 @@ public:
 public slots:
     void setJsonData(const QString& json);
     void setMouseBehabiour(MouseBehaviour behaviour);
+    void setNumberEmetters(int n);
 
 private:
 
@@ -162,9 +164,11 @@ private:
     bool                    m_bAlphaBlend;              ///< Use Alpha Blending ?
 
 
-    ParticlesRenderer*      m_particlesRenderer;
+    std::vector<ParticlesRenderer*>     m_particlesRenderers;
 
     MouseBehaviour          m_mouseBehaviour;
+
+    ParticleConfiguration   m_particleConfig;
 
 
 };

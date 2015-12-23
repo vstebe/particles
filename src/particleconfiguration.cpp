@@ -6,6 +6,18 @@
 #include <QJsonDocument>
 #include <QDebug>
 
+
+ParticleConfiguration::ParticleConfiguration() :
+    _image(""),
+    _attractForceNorm(0.f),
+    _attractForcePoint(0),
+    _attractForceSet(false),
+    _forces(),
+    _initialSpeed()
+{
+
+}
+
 ParticleConfiguration::ParticleConfiguration(const QString& json)
 {
 
