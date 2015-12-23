@@ -41,7 +41,7 @@ public:
     ~Emetter();
 
 protected:
-    glm::vec3 randomInitialSpeed();
+    glm::vec3 randomVec3(const ParticleConfiguration::Range<glm::vec3>& vec);
     float getAlphaFromLife(float life);
 
     glm::vec3 * _data;

@@ -47,7 +47,6 @@ ParticleConfiguration::ParticleConfiguration(const QString& json)
 
     _creationTime = (float) root["creation-time"].toDouble();
 
-    _color = parseColor(root["color"].toObject());
 
     if(root["attract-force"].isObject()) {
         _attractForceSet = true;
@@ -65,6 +64,21 @@ ParticleConfiguration::ParticleConfiguration(const QString& json)
     if(root["size"].isObject()) {
         _size = Range<float>(root["size"].toObject()["min"].toDouble(),
                              root["size"].toObject()["max"].toDouble());
+    } else if(root["size"].isDouble()) {
+        _size = Range<float>(root["size"].toDouble(), root["size"].toDouble());
+    }
+
+    _deathSize = _size;
+    if(root["death-size"].isObject()) {
+        _deathSize = Range<float>(root["death-size"].toObject()["min"].toDouble(),
+                             root["death-size"].toObject()["max"].toDouble());
+    } else if(root["death-size"].isDouble()) {
+        _deathSize = Range<float>(root["death-size"].toDouble(), root["death-size"].toDouble());
+    }
+
+    _color = Range<glm::vec3>(glm::vec3(1.f,1.f,1.f),glm::vec3(1.f,1.f,1.f));
+    if(root["color"].isObject()) {
+        _color = parseRangeVec3(root["color"].toObject());
     }
 }
 
@@ -82,27 +96,29 @@ glm::vec3 ParticleConfiguration::parseVec3(const QJsonObject &obj)
 
 ParticleConfiguration::Range<glm::vec3> ParticleConfiguration::parseRangeVec3(const QJsonObject &obj)
 {
-    glm::vec3 min(obj["x"].toObject()["min"].toDouble(),
-                  obj["y"].toObject()["min"].toDouble(),
-                  obj["z"].toObject()["min"].toDouble());
-    glm::vec3 max(obj["x"].toObject()["max"].toDouble(),
-                  obj["y"].toObject()["max"].toDouble(),
-                  obj["z"].toObject()["max"].toDouble());
-    return ParticleConfiguration::Range<glm::vec3>(min, max);
+    if(obj["r"].isUndefined()) {
+        glm::vec3 min((obj["x"].isObject()) ? obj["x"].toObject()["min"].toDouble() : obj["x"].toDouble(),
+                      (obj["y"].isObject()) ? obj["y"].toObject()["min"].toDouble() : obj["y"].toDouble(),
+                      (obj["z"].isObject()) ? obj["z"].toObject()["min"].toDouble() : obj["z"].toDouble());
+        glm::vec3 max((obj["x"].isObject()) ? obj["x"].toObject()["max"].toDouble() : obj["x"].toDouble(),
+                      (obj["y"].isObject()) ? obj["y"].toObject()["max"].toDouble() : obj["y"].toDouble(),
+                      (obj["z"].isObject()) ? obj["z"].toObject()["max"].toDouble() : obj["z"].toDouble());
+
+        return ParticleConfiguration::Range<glm::vec3>(min, max);
+    } else {
+        glm::vec3 min((obj["r"].isObject()) ? obj["r"].toObject()["min"].toDouble() : obj["r"].toDouble(),
+                      (obj["g"].isObject()) ? obj["g"].toObject()["min"].toDouble() : obj["g"].toDouble(),
+                      (obj["b"].isObject()) ? obj["b"].toObject()["min"].toDouble() : obj["b"].toDouble());
+        glm::vec3 max((obj["r"].isObject()) ? obj["r"].toObject()["max"].toDouble() : obj["r"].toDouble(),
+                      (obj["g"].isObject()) ? obj["g"].toObject()["max"].toDouble() : obj["g"].toDouble(),
+                      (obj["b"].isObject()) ? obj["b"].toObject()["max"].toDouble() : obj["b"].toDouble());
+
+        return ParticleConfiguration::Range<glm::vec3>(min, max);
+    }
+
 }
 
-glm::vec4 ParticleConfiguration::parseColor(const QJsonObject &obj)
-{
-    float r = (float) obj["r"].toDouble();
-    float g = (float) obj["g"].toDouble();
-    float b = (float) obj["b"].toDouble();
-    float a;
-    if(obj["a"].isDouble())
-        a = obj["a"].toDouble();
-    else
-        a = 1.f;
-    return glm::vec4(r,g,b,a);
-}
+
 
 float ParticleConfiguration::getLifeTime() const
 {
@@ -114,7 +130,7 @@ float ParticleConfiguration::getCreationTime() const
     return _creationTime;
 }
 
-const glm::vec4 &ParticleConfiguration::getColor() const
+const ParticleConfiguration::Range<glm::vec3> &ParticleConfiguration::getColor() const
 {
     return _color;
 }
@@ -142,6 +158,11 @@ float ParticleConfiguration::getRotationVelocity() const
 const ParticleConfiguration::Range<float> &ParticleConfiguration::getSize() const
 {
     return _size;
+}
+
+const ParticleConfiguration::Range<float> &ParticleConfiguration::getDeathSize() const
+{
+    return _deathSize;
 }
 
 int ParticleConfiguration::getMaxParticles() const

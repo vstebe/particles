@@ -370,7 +370,7 @@ void TPGLWindow::setJsonData(const QString &json)
 void TPGLWindow::setMouseBehabiour(TPGLWindow::MouseBehaviour behaviour)
 {
     m_mouseBehaviour = behaviour;
-    if(m_mouseBehaviour != MOVE_EMETTER && m_particlesRenderers.size()> 1) {
+    if(m_particlesRenderers.size()> 0) {
         setNumberEmetters(m_particlesRenderers.size());
     }
 }
@@ -518,6 +518,7 @@ void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
             m_particlesRenderers[i]->getEmetter()->setUseCustomAttractPoint(true);
             m_particlesRenderers[i]->getEmetter()->setCustomAttractPoint(final);
         }
+        break;
     }
 
 

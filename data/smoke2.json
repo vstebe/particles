@@ -1,0 +1,24 @@
+{
+    "attract-force": {
+        "point": {"x":0, "y":0, "z":1},
+        "norm": 0.5
+    },
+    "size": {"min":0.1, "max":0.1},
+    "image": "data/img/smoke.png",
+    "initial-speed": {
+        "x":{"min":-0.01, "max":0.01},
+        "y":{"min":-0.01, "max":0.01},
+        "z":{"min":-0.01, "max":0.01}
+    },
+    "life-time": 3,
+    "max-particles": 1000,
+    "creation-time": 0.1,
+    "color": {
+        "r":1,
+        "g":1,
+        "b":1
+    },
+    "rotation-velocity": 0.5,
+     "size": 0.01,
+     "death-size": 0.15
+}

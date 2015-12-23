@@ -2,6 +2,7 @@
 #define PARTICLE_H
 
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 class Particle
 {
@@ -30,15 +31,23 @@ public:
     float getSize() const;
     void setSize(float size);
 
+    float getDeathSize() const;
+    void setDeathSize(float size);
+
+    const glm::vec3& getColor() const;
+    void setColor(const glm::vec3& color);
+
 protected:
     glm::vec3 _position;
     glm::vec3 _velocity;
+    glm::vec3 _color;
     float _lifeTime;
 
     float _rotation;
     float _rotationVelocity;
 
     float _size;
+    float _deathSize;
 
 };
 

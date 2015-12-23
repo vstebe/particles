@@ -11,7 +11,9 @@ Particle::Particle(const glm::vec3 &pos, const glm::vec3 &velocity, float lifeTi
     _lifeTime(lifeTime),
     _rotation(0.f),
     _rotationVelocity(2.f),
-    _size(1.f)
+    _size(1.f),
+    _color(1.f, 1.f, 1.f),
+    _deathSize(1.f)
 {
 
 }
@@ -22,7 +24,9 @@ Particle::Particle(const glm::vec3 &pos, const glm::vec3 &velocity) :
     _lifeTime(-1),
     _rotation(0.f),
     _rotationVelocity(2.f),
-    _size(1.f)
+    _size(1.f),
+    _color(1.f, 1.f, 1.f),
+    _deathSize(1.f)
 {
 
 }
@@ -33,7 +37,9 @@ Particle::Particle() :
     _lifeTime(-1),
     _rotation(0.f),
     _rotationVelocity(2.f),
-    _size(1.f)
+    _size(1.f),
+    _color(1.f, 1.f, 1.f),
+    _deathSize(1.f)
 {
 
 }
@@ -100,5 +106,23 @@ float Particle::getSize() const
 
 void Particle::setSize(float size) {
     _size = size;
+}
+
+float Particle::getDeathSize() const
+{
+    return _deathSize;
+}
+
+void Particle::setDeathSize(float size) {
+    _deathSize = size;
+}
+
+const glm::vec3 &Particle::getColor() const
+{
+    return _color;
+}
+
+void Particle::setColor(const glm::vec3 &color) {
+    _color = color;
 }
 

@@ -23,10 +23,9 @@ Emetter::Emetter(const ParticleConfiguration &config) :
 
     for(int i = 0; i<_config.getMaxParticles(); i++) {
         _data[i] = glm::vec3(0.f, 1.f, 0.f);
-        _colorData[i] = _config.getColor();
         _rotationData[i] = 0.f;
         _sizeData[i] = 0.1f;
-        _particles.push_back(Particle(_origin, randomInitialSpeed()));
+        _particles.push_back(Particle(_origin, randomVec3(_config.getInitialSpeed())));
         _particles.back().setRotationVelocity(_config.getRotationVelocity());
 
     }
@@ -57,19 +56,23 @@ Emetter::~Emetter()
 {
     delete _data;
     delete _colorData;
+    delete _sizeData;
+    delete _rotationData;
 }
+
 
 float fRandom(float LO, float HI) {
     return LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)));
 }
 
-glm::vec3 Emetter::randomInitialSpeed()
+glm::vec3 Emetter::randomVec3(const ParticleConfiguration::Range<glm::vec3> &vec)
 {
-    float x = fRandom(_config.getInitialSpeed().min.x, _config.getInitialSpeed().max.x);
-    float y = fRandom(_config.getInitialSpeed().min.y, _config.getInitialSpeed().max.y);
-    float z = fRandom(_config.getInitialSpeed().min.z, _config.getInitialSpeed().max.z);
+    float x = fRandom(vec.min.x, vec.max.x);
+    float y = fRandom(vec.min.y, vec.max.y);
+    float z = fRandom(vec.min.z, vec.max.z);
     return glm::vec3(x,y,z);
 }
+
 
 float Emetter::getAlphaFromLife(float life)
 {
@@ -159,14 +162,18 @@ void Emetter::update(float time)
 
 
             _particles[i].setPosition(_particles[i].getPosition() + _particles[i].getVelocity() * time);
+
         } else if(_isActive && _timeLastCreation >= _config.getCreationTime()) {
             _particles[i].setLifeTime(_config.getLifeTime());
-            _particles[i].setVelocity(randomInitialSpeed());
+            _particles[i].setVelocity(randomVec3(_config.getInitialSpeed()));
             _particles[i].setPosition(_origin);
 
             _particles[i].setRotation(0.f);
 
+            _particles[i].setColor(randomVec3(_config.getColor()));
+
             _particles[i].setSize(fRandom(_config.getSize().min, _config.getSize().max));
+            _particles[i].setDeathSize(fRandom(_config.getDeathSize().min, _config.getDeathSize().max));
 
             _timeLastCreation -= _config.getCreationTime();
         } else {
@@ -175,10 +182,13 @@ void Emetter::update(float time)
 
 
         _data[i] = _particles[i].getPosition();
-        _colorData[i].a = (GLfloat) getAlphaFromLife(_particles[i].getLifeTime());
+        _colorData[i] = glm::vec4(_particles[i].getColor(), (GLfloat) getAlphaFromLife(_particles[i].getLifeTime()));
         _rotationData[i] = _particles[i].getRotation();
-        _sizeData[i] = _particles[i].getSize();
 
+        float progress = _particles[i].getLifeTime() / _config.getLifeTime();
+        progress = 1 - progress;
+
+        _sizeData[i] = _particles[i].getSize() + progress * (_particles[i].getDeathSize() - _particles[i].getSize());
 
         if(_particles[i].isAlive()) nbAlives++;
     }

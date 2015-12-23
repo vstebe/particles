@@ -27,7 +27,7 @@ public:
     int getMaxParticles() const;
     float getLifeTime() const;
     float getCreationTime() const;
-    const glm::vec4& getColor() const;
+    const Range<glm::vec3>& getColor() const;
 
     bool isAttractForceSet() const;
     const glm::vec3& getAttractForcePoint() const;
@@ -36,21 +36,22 @@ public:
     float getRotationVelocity() const;
 
     const Range<float>& getSize() const;
+    const Range<float>& getDeathSize() const;
 
 protected:
     glm::vec3 parseVec3(const QJsonObject &obj);
     Range<glm::vec3> parseRangeVec3(const QJsonObject &obj);
-    glm::vec4 parseColor(const QJsonObject& obj);
 
 
     QVector<glm::vec3> _forces;
     Range<glm::vec3> _initialSpeed;
     Range<float> _size;
+    Range<float> _deathSize;
     QString _image;
     int _maxParticles;
     float _lifeTime;
     float _creationTime;
-    glm::vec4 _color;
+    Range<glm::vec3> _color;
 
     bool _attractForceSet;
     glm::vec3 _attractForcePoint;
