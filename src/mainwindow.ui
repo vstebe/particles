@@ -14,19 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
-    <item>
-     <widget class="QWidget" name="leftSide" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <layout class="QVBoxLayout" name="leftSideLayout"/>
-     </widget>
-    </item>
-   </layout>
+   <layout class="QHBoxLayout" name="horizontalLayout_2"/>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -107,6 +95,11 @@
        <item>
         <property name="text">
          <string>No Effect</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Move Camera</string>
         </property>
        </item>
        <item>

@@ -26,24 +26,27 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
 #include <QtGui/QKeyEvent>
+#include <QOpenGLWidget>
 #include <QVector>
 
 //====================================================================================================================================
 
-class TPGLWindow : public OpenGLWindow
+class TPGLWindow : public QOpenGLWidget,  protected QOpenGLFunctions_3_3_Core
 {
     Q_OBJECT
 public:
-    enum MouseBehaviour {NONE, MOVE_EMETTER, MOVE_ATTRACT_POINT};
+    enum MouseBehaviour {NONE, MOVE_VIEW, MOVE_EMETTER, MOVE_ATTRACT_POINT};
 
     TPGLWindow();
     virtual ~TPGLWindow();
 
-    void initialize();
+    void initializeGL();
 
-    void render();
+    void paintGL();
 
     void update();
+
+    void resizeGL(int w, int h);
 
 
 public slots:
@@ -102,7 +105,7 @@ private:
 
 
     /// Handles resize event
-    void resizeEvent(QResizeEvent*);
+
 
     //------------------------------------------------------------------------------------
     /// Creates the Texture object from a texture file
@@ -152,6 +155,7 @@ private:
     QTime       			m_timer;                    ///< Time used to get elapsed time between 2 frames
 
     glm::vec3               m_vCameraPosition;          ///< Camera position - in World Space
+    glm::vec3               m_vCameraCenter;
 
     //------------------------------------------------------------------------------------
 

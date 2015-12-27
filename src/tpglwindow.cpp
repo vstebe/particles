@@ -1,4 +1,10 @@
+#define GLM_SWIZZLE_XYZW
+
 #include "tpglwindow.h"
+
+#include <QDebug>
+
+#define CAMERA_SENSITIVITY 10
 
 //====================================================================================================================================
 std::string readFileSrc(const std::string& _rstrFilePath)
@@ -65,14 +71,11 @@ TPGLWindow::TPGLWindow()
     , m_bAlphaBlend         ( false )
     , m_particlesRenderers   (0)
     , m_mouseBehaviour      ( NONE )
+    , m_vCameraCenter (0,0,-1)
 {
     m_vCameraPosition   = glm::vec3(0,0,fCameraZInit);
 
     m_timer.start();
-
-    // request the window to render in loop
-    setAnimating(true);
-
 
 }
 
@@ -295,8 +298,10 @@ void TPGLWindow::setupTexturesInUnit()
 }
 
 //====================================================================================================================================
-void TPGLWindow::initialize()
+void TPGLWindow::initializeGL()
 {
+    initializeOpenGLFunctions();
+
     // Prints the GL Version
     TP_LOG("GL Version : %s\n",(char*)glGetString(GL_VERSION));
 
@@ -312,6 +317,27 @@ void TPGLWindow::initialize()
     createVBO();
     createVAOFromVBO();
 
+    QString glType;
+      QString glVersion;
+      QString glProfile;
+
+      // Get Version Information
+      glType = (context()->isOpenGLES()) ? "OpenGL ES" : "OpenGL";
+      glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
+      // Get Profile Information
+    #define CASE(c) case QSurfaceFormat::c: glProfile = #c; break
+      switch (format().profile())
+      {
+        CASE(NoProfile);
+        CASE(CoreProfile);
+        CASE(CompatibilityProfile);
+      }
+    #undef CASE
+
+      // qPrintable() will print our QString w/o quotes around it.
+      qDebug() << qPrintable(glType) << qPrintable(glVersion) << "(" << qPrintable(glProfile) << ")";
+
 
 
 }
@@ -322,14 +348,14 @@ void TPGLWindow::updateMatrices()
     const glm::vec3 vRight  (1,0,0);
     const glm::vec3 vUp     (0,1,0);
     const glm::vec3 vFront  (0,0,-1);
-    const glm::vec3 vCenter (0,0,-1);
+
 
     // Projection matrix is "simply" a perspective matrix, so use the right tool function from GLM
     m_mtxCameraProjection       = glm::perspective(glm::radians(45.0f), (float)width()/height(), 0.1f, 100.f);
 
 
     // View matrix is built from the common "lookAt" paradigm, using the RH (Right-Handed) coordinate system
-    m_mtxCameraView             = glm::lookAtRH( m_vCameraPosition, vCenter, vUp );
+    m_mtxCameraView             = glm::lookAtRH( m_vCameraPosition, m_vCameraCenter, vUp );
 
     // Finally, build the World matrix for the model taking into account its translate and orientation
     glm::mat4 Model             = glm::translate(glm::mat4(1.0f), m_vObjectTranslate);
@@ -346,6 +372,7 @@ void TPGLWindow::update()
 
     // Update light position, so that it is animated
     float   fTimeElapsed        = (float) m_timer.restart();
+
 
     for(int i=0; i<m_particlesRenderers.size(); i++)
         m_particlesRenderers[i]->update(fTimeElapsed);
@@ -370,9 +397,12 @@ void TPGLWindow::setJsonData(const QString &json)
 void TPGLWindow::setMouseBehabiour(TPGLWindow::MouseBehaviour behaviour)
 {
     m_mouseBehaviour = behaviour;
+    m_vCameraCenter = glm::vec3(0,0,-1);
+    m_vCameraPosition   = glm::vec3(0,0,fCameraZInit);
     if(m_particlesRenderers.size()> 0) {
         setNumberEmetters(m_particlesRenderers.size());
     }
+    updateMatrices();
 }
 
 void TPGLWindow::setNumberEmetters(int n)
@@ -407,8 +437,9 @@ void TPGLWindow::setNumberEmetters(int n)
 }
 
 //====================================================================================================================================
-void TPGLWindow::render()
+void TPGLWindow::paintGL()
 {
+    update();
     //--------------------------------------------------------------------------------------------------------------------
     // precondition
     TP_ASSERT( 0 != m_iGPUProgramID , "m_iGPUProgramID should not be 0 (here it is '%d') - Did you call createGPUProgramFromGPUShaders() ?.\n", m_iGPUProgramID );
@@ -416,8 +447,8 @@ void TPGLWindow::render()
 
 
     // Specifies the viewport size -----------------------------------------------------------------
-    const float retinaScale = devicePixelRatio();
-    glViewport( 0, 0, width() * retinaScale, height() * retinaScale );
+    //const float retinaScale = devicePixelRatio();
+    //glViewport( 0, 0, width() * retinaScale, height() * retinaScale );
 
     // Specify winding order Counter ClockZise (even though it's default on OpenGL) ----------------
     glFrontFace( GL_CCW );
@@ -455,7 +486,7 @@ void TPGLWindow::render()
     }
 
     // Specify the color to use when clearing theframebuffer --------------------------------------
-    glClearColor( 0.05f, 0.2f, 0.3f, 1.0f );
+    glClearColor( 0.5f, 0.f, 0.5f, 0.0f );
 
     // Clears the framebuffer ---------------------------------------------------------------------
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
@@ -487,7 +518,7 @@ void TPGLWindow::mouseReleaseEvent(QMouseEvent *) {
 }
 
 //====================================================================================================================================
-void TPGLWindow::resizeEvent(QResizeEvent* /*_pEvent*/)
+void TPGLWindow::resizeGL(int w, int h)
 {
     // Force the update of the perspective matrix
     updateMatrices();
@@ -521,6 +552,12 @@ void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
         break;
     }
 
+    if(m_mouseBehaviour == MOVE_VIEW) {
+        m_vCameraCenter.x = final.x * CAMERA_SENSITIVITY;
+        m_vCameraCenter.y = final.z * CAMERA_SENSITIVITY;
+        updateMatrices();
+    }
+
 
 }
 
@@ -532,9 +569,13 @@ void TPGLWindow::keyPressEvent(QKeyEvent* _pEvent)
 //        float   fTimeElapsed= (float) m_timer.elapsed();
 
         float   fMoveSpeed          = 0.07f;// * fTimeElapsed;
-        bool    bHasObjectMoved     = false;
 
+        glm::vec3 translation = glm::normalize(m_vCameraCenter - m_vCameraPosition);
 
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.f), 90.0f, glm::vec3(0.0, 1.0, 0.0));
+
+        glm::vec3 test = glm::vec3(rotation * glm::vec4(translation, 1.f));
+        qDebug() << test.x << " " << test.y << " " << test.z;
         // handle key press to move the 3D object
         switch( _pEvent->key() )
         {
@@ -542,49 +583,22 @@ void TPGLWindow::keyPressEvent(QKeyEvent* _pEvent)
             m_bAlphaBlend = !m_bAlphaBlend;
             break;
 
-        case Qt::Key_R:
-            m_vObjectTranslate = glm::vec3(0, 0, 0);
-            m_vCameraPosition  = glm::vec3(0,0,fCameraZInit);
-            bHasObjectMoved = true;
+        case Qt::Key_Z:
+            m_vCameraPosition += fMoveSpeed * glm::normalize(m_vCameraCenter - m_vCameraPosition);
             break;
 
-        case Qt::Key_Minus:
-            m_vObjectTranslate -= glm::vec3(0, 0, 1) * fMoveSpeed;
-            bHasObjectMoved = true;
+        case Qt::Key_S:
+            m_vCameraPosition -= fMoveSpeed * glm::normalize(m_vCameraCenter - m_vCameraPosition);
             break;
 
-        case Qt::Key_Plus:
-            m_vObjectTranslate += glm::vec3(0, 0, 1) * fMoveSpeed;
-            bHasObjectMoved = true;
+        case Qt::Key_Q:
+            m_vCameraPosition += fMoveSpeed * test;
+            m_vCameraCenter += fMoveSpeed * test;
             break;
 
-        case Qt::Key_Left:
-            m_vObjectTranslate -= glm::vec3(1, 0, 0) * fMoveSpeed;
-            bHasObjectMoved = true;
-            break;
-
-        case Qt::Key_Right:
-            m_vObjectTranslate += glm::vec3(1, 0, 0) * fMoveSpeed;
-            bHasObjectMoved = true;
-            break;
-
-        case Qt::Key_Up:
-            m_vObjectTranslate += glm::vec3(0, 1, 0) * fMoveSpeed;
-            bHasObjectMoved = true;
-            break;
-
-        case Qt::Key_Down:
-            m_vObjectTranslate -= glm::vec3(0, 1, 0) * fMoveSpeed;
-            bHasObjectMoved = true;
-            break;
-
-        case Qt::Key_Space:
-            m_vObjectEulerAngles -= glm::vec3(0, glm::radians(1.0f), 0);
-            bHasObjectMoved = true;
-            break;
-
-        case Qt::Key_Return:
-        case Qt::Key_Enter:
+        case Qt::Key_D:
+            m_vCameraPosition -= fMoveSpeed * test;
+            m_vCameraCenter -= fMoveSpeed * test;
             break;
 
         case Qt::Key_Escape:

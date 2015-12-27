@@ -2,8 +2,18 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDebug>
 
 #include "tpglwindow.h"
+
+class BigFocusWidget : public QWidget {
+public:
+    BigFocusWidget(QWidget * widget = NULL) :  QWidget(widget) {setFocusPolicy(Qt::StrongFocus);}
+    void mousePressEvent(QMouseEvent *) {
+        qDebug() << "tet";
+        setFocus();
+    }
+};
 
 namespace Ui {
 class MainWindow;
@@ -32,6 +42,8 @@ signals:
 private:
     Ui::MainWindow *ui;
     TPGLWindow * _glWindow;
+    QWidget * _glWidgetContainer;
+    BigFocusWidget * _glWidgetContainerContainer;
 
     QString _currentFile;
 };

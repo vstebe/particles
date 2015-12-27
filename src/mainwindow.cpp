@@ -13,17 +13,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 
-    QSurfaceFormat format;
-    #ifdef Q_OS_LINUX  // what about Linux ?
-        format.setMajorVersion(3);
-        format.setMinorVersion(3);
-        format.setProfile(QSurfaceFormat::CoreProfile);
-    #endif
-    format.setSamples(16);
-    format.setDepthBufferSize(24);
-    _glWindow->setFormat(format);
 
-    ui->leftSideLayout->addWidget(QWidget::createWindowContainer(_glWindow, this));
+
+    //setCentralWidget(_glWindow);
+    _glWindow->setFocusPolicy(Qt::StrongFocus);
+
+    _glWindow->show();
 
 
     QFileSystemModel *model = new QFileSystemModel;
@@ -44,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->comboMouseBehaviour, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMouseBehaviour(int)));
 
     connect(ui->sliderEmetters, SIGNAL(valueChanged(int)), _glWindow, SLOT(setNumberEmetters(int)));
+
 
     connect(this, SIGNAL(jsonChanged(QString)), _glWindow, SLOT(setJsonData(QString)));
 }
