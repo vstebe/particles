@@ -3,6 +3,7 @@
 #include "tpglwindow.h"
 
 #include <QDebug>
+#include <QTimer>
 
 #define CAMERA_SENSITIVITY 10
 
@@ -77,6 +78,9 @@ TPGLWindow::TPGLWindow()
 
     m_timer.start();
 
+    QTimer * timer = new QTimer();
+        QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+        timer->start( 10 );
 }
 
 //====================================================================================================================================
@@ -317,29 +321,6 @@ void TPGLWindow::initializeGL()
     createVBO();
     createVAOFromVBO();
 
-    QString glType;
-      QString glVersion;
-      QString glProfile;
-
-      // Get Version Information
-      glType = (context()->isOpenGLES()) ? "OpenGL ES" : "OpenGL";
-      glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-
-      // Get Profile Information
-    #define CASE(c) case QSurfaceFormat::c: glProfile = #c; break
-      switch (format().profile())
-      {
-        CASE(NoProfile);
-        CASE(CoreProfile);
-        CASE(CompatibilityProfile);
-      }
-    #undef CASE
-
-      // qPrintable() will print our QString w/o quotes around it.
-      qDebug() << qPrintable(glType) << qPrintable(glVersion) << "(" << qPrintable(glProfile) << ")";
-
-
-
 }
 
 //====================================================================================================================================
@@ -370,6 +351,7 @@ void TPGLWindow::update()
 
 //    static int siFrameID        = 0;
 
+
     // Update light position, so that it is animated
     float   fTimeElapsed        = (float) m_timer.restart();
 
@@ -383,6 +365,8 @@ void TPGLWindow::update()
 
 
     //    siFrameID++;
+
+    QOpenGLWidget::update();
 }
 
 void TPGLWindow::setJsonData(const QString &json)
@@ -407,6 +391,8 @@ void TPGLWindow::setMouseBehabiour(TPGLWindow::MouseBehaviour behaviour)
 
 void TPGLWindow::setNumberEmetters(int n)
 {
+    makeCurrent();
+
     for(unsigned int i=0; i<m_particlesRenderers.size(); i++)
         delete m_particlesRenderers[i];
     m_particlesRenderers.clear();
@@ -439,7 +425,7 @@ void TPGLWindow::setNumberEmetters(int n)
 //====================================================================================================================================
 void TPGLWindow::paintGL()
 {
-    update();
+
     //--------------------------------------------------------------------------------------------------------------------
     // precondition
     TP_ASSERT( 0 != m_iGPUProgramID , "m_iGPUProgramID should not be 0 (here it is '%d') - Did you call createGPUProgramFromGPUShaders() ?.\n", m_iGPUProgramID );
@@ -448,7 +434,7 @@ void TPGLWindow::paintGL()
 
     // Specifies the viewport size -----------------------------------------------------------------
     //const float retinaScale = devicePixelRatio();
-    //glViewport( 0, 0, width() * retinaScale, height() * retinaScale );
+   //glViewport( 0, 0, 800 * retinaScale, 400 * retinaScale );
 
     // Specify winding order Counter ClockZise (even though it's default on OpenGL) ----------------
     glFrontFace( GL_CCW );
@@ -486,7 +472,7 @@ void TPGLWindow::paintGL()
     }
 
     // Specify the color to use when clearing theframebuffer --------------------------------------
-    glClearColor( 0.5f, 0.f, 0.5f, 0.0f );
+    glClearColor( 0.2f, 0.1f, 0.2f, 0.0f );
 
     // Clears the framebuffer ---------------------------------------------------------------------
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
@@ -507,6 +493,8 @@ void TPGLWindow::paintGL()
     }
     // Stops using the GPU Program ----------------------------------------------------------------
     glUseProgram( 0 );
+
+
 }
 
 void TPGLWindow::mousePressEvent(QMouseEvent *) {
@@ -521,7 +509,7 @@ void TPGLWindow::mouseReleaseEvent(QMouseEvent *) {
 void TPGLWindow::resizeGL(int w, int h)
 {
     // Force the update of the perspective matrix
-    updateMatrices();
+    //updateMatrices();
 }
 
 void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {

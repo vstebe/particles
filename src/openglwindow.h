@@ -2,7 +2,6 @@
 #define __OPENGLWINDOW_H__
 
 #include <QtGui/QWindow>
-#include <QOpenGLFunctions_3_3_Core>
 
 QT_BEGIN_NAMESPACE
 class QPainter;

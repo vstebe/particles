@@ -1,7 +1,6 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-#include "openglwindow.h"
 #include "emetter.h"
 #include "particleconfiguration.h"
 #include "particlesrenderer.h"
@@ -40,19 +39,20 @@ public:
     TPGLWindow();
     virtual ~TPGLWindow();
 
-    void initializeGL();
+    virtual void initializeGL();
 
-    void paintGL();
+    virtual void paintGL();
 
-    void update();
 
-    void resizeGL(int w, int h);
+
+    virtual void resizeGL(int w, int h);
 
 
 public slots:
     void setJsonData(const QString& json);
     void setMouseBehabiour(MouseBehaviour behaviour);
     void setNumberEmetters(int n);
+    void update();
 
 private:
 

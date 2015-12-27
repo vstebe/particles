@@ -15,10 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
-    //setCentralWidget(_glWindow);
+    setCentralWidget(_glWindow);
     _glWindow->setFocusPolicy(Qt::StrongFocus);
 
-    _glWindow->show();
 
 
     QFileSystemModel *model = new QFileSystemModel;

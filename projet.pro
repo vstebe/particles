@@ -30,16 +30,14 @@ INCLUDEPATH +=  $$PWD/src
 INCLUDEPATH += include/
 
 VPATH   =   $$PWD/src
-HEADERS +=  openglwindow.h \
-    src/emetter.h \
+HEADERS +=   src/emetter.h \
     src/particle.h \
     src/particleconfiguration.h \
     src/mainwindow.h \
     src/tpglwindow.h \
     src/particlesrenderer.h
 
-SOURCES +=  openglwindow.cpp \
-    src/emetter.cpp \
+SOURCES +=   src/emetter.cpp \
     src/particle.cpp \
     src/particleconfiguration.cpp \
     src/mainwindow.cpp \
