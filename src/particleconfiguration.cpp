@@ -6,14 +6,20 @@
 #include <QJsonDocument>
 #include <QDebug>
 
-
 ParticleConfiguration::ParticleConfiguration() :
-    _image(""),
-    _attractForceNorm(0.f),
-    _attractForcePoint(0),
-    _attractForceSet(false),
     _forces(),
-    _initialSpeed()
+    _initialSpeed(),
+    _size(Range<float>(1.f, 1.f)),
+    _deathSize(Range<float>(1.f, 1.f)),
+    _image(""),
+    _maxParticles(100),
+    _lifeTime(2.f),
+    _creationTime(.5f),
+    _color(Range<glm::vec3>(glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 1.f, 1.f))),
+    _attractForceSet(false),
+    _attractForcePoint(0),
+    _attractForceNorm(0.f),
+    _rotationVelocity(0.f)
 {
 
 }

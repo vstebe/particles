@@ -23,7 +23,6 @@ protected:
     Emetter _emetter;
 
     GLuint  _iVAO;
-    GLuint  _iEBO;
 
     GLuint  _iVBOPosition;
     GLuint  _iVBOColor;

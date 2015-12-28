@@ -35,7 +35,10 @@ HEADERS +=   src/emetter.h \
     src/particleconfiguration.h \
     src/mainwindow.h \
     src/tpglwindow.h \
-    src/particlesrenderer.h
+    src/particlesrenderer.h \
+    src/gpuprogram.h \
+    src/utils.h \
+    src/bigquad.h
 
 SOURCES +=   src/emetter.cpp \
     src/particle.cpp \
@@ -43,7 +46,10 @@ SOURCES +=   src/emetter.cpp \
     src/mainwindow.cpp \
     src/tpglwindow.cpp \
     src/main.cpp \
-    src/particlesrenderer.cpp
+    src/particlesrenderer.cpp \
+    src/gpuprogram.cpp \
+    src/utils.cpp \
+    src/bigquad.cpp
 
 DISTFILES += \
     data/FS.glsl \

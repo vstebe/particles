@@ -8,11 +8,11 @@
 Particle::Particle(const glm::vec3 &pos, const glm::vec3 &velocity, float lifeTime) :
     _position(pos),
     _velocity(velocity),
+    _color(1.f, 1.f, 1.f),
     _lifeTime(lifeTime),
     _rotation(0.f),
     _rotationVelocity(2.f),
     _size(1.f),
-    _color(1.f, 1.f, 1.f),
     _deathSize(1.f)
 {
 
@@ -21,24 +21,25 @@ Particle::Particle(const glm::vec3 &pos, const glm::vec3 &velocity, float lifeTi
 Particle::Particle(const glm::vec3 &pos, const glm::vec3 &velocity) :
     _position(pos),
     _velocity(velocity),
+    _color(1.f, 1.f, 1.f),
     _lifeTime(-1),
     _rotation(0.f),
     _rotationVelocity(2.f),
     _size(1.f),
-    _color(1.f, 1.f, 1.f),
     _deathSize(1.f)
 {
 
 }
 
+
 Particle::Particle() :
     _position(0),
     _velocity(0),
+    _color(1.f, 1.f, 1.f),
     _lifeTime(-1),
     _rotation(0.f),
     _rotationVelocity(2.f),
     _size(1.f),
-    _color(1.f, 1.f, 1.f),
     _deathSize(1.f)
 {
 

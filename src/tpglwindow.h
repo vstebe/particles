@@ -4,6 +4,9 @@
 #include "emetter.h"
 #include "particleconfiguration.h"
 #include "particlesrenderer.h"
+#include "utils.h"
+#include "gpuprogram.h"
+#include "bigquad.h"
 
 #include <string>
 #include <iostream>
@@ -45,7 +48,7 @@ public:
 
 
 
-    virtual void resizeGL(int w, int h);
+    virtual void resizeGL(int w, int);
 
 
 public slots:
@@ -55,16 +58,6 @@ public slots:
     void update();
 
 private:
-
-    /// Creates the GPU VertexShader
-    void createGPUVertexShader();
-
-    /// Creates the GPU FragmentShader
-    void createGPUFragmentShader();
-
-    /// Creates the GPU Program from the GPU VertexShader and GPU FragmentShader
-    void createGPUProgramFromGPUShaders();
-
     /// Destroys GPU Program and Shaders
     void destroyGPUProgramAndShaders();
 
@@ -75,21 +68,12 @@ private:
     /// Get the GLSL uniform locations
     void getUniformLocations();
 
-    /// Get the GLSL vertex attributes locations
-    void getAttributeLocations();
+    /// Send the uniform vars from the CPU to the GPU
+    void sendParticlesUniformsToGPU();
 
     /// Send the uniform vars from the CPU to the GPU
-    void sendUniformsToGPU();
+    void sendObjectsUniformsToGPU();
 
-     //------------------------------------------------------------------------------------
-    /// Creates the VertexBufferObject that contains the geometry position
-    void createVBO();
-
-    /// Creates the VertexArrayObject that contains the geometry info
-    void createVAOFromVBO();
-
-    /// Destroys the VertexArrayObject created earlier
-    void destroyVAOAndVBO();
 
     //------------------------------------------------------------------------------------
     /// Update the CameraProjection, CameraView, ObjectWorld matrices
@@ -103,20 +87,6 @@ private:
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
 
-
-    /// Handles resize event
-
-
-    //------------------------------------------------------------------------------------
-    /// Creates the Texture object from a texture file
-    void createTextures();
-
-    /// Destroys all Texture objects
-    void destroyTextures();
-
-    /// Bind the textures to their texture unit
-    void setupTexturesInUnit();
-
     //------------------------------------------------------------------------------------
     /// Creates the GPU GeometryShader
     void createGPUGeometryShader();
@@ -125,31 +95,20 @@ private:
 
 
 
-    GLuint      			m_iGPUProgramID;            ///< OpenGL ID for GPU Program
-    GLuint      			m_iGPUVertexShaderID;       ///< OpenGL ID for GPU VertexShader
-    GLuint      			m_iGPUFragmentShaderID;     ///< OpenGL ID for GPU FragmentShader
-    //------------------------------------------------------------------------------------
-    GLuint      			m_iVertexCount;             ///< Number of vertices in the VAO
-    GLuint      			m_iTrianglesCount;          ///< Number of triangles to draw
-    GLuint      			m_iElementsCount;           ///< Number of indices used for drawing
-    GLuint      			m_iVAO;                     ///< VertexArrayObject used for drawing
-
-    GLuint      			m_iAttribPosition;          ///< GLSL attribute location for vertex position
-    GLuint      			m_iAttribColor;            ///< GLSL attribute location for vertex colour
-    GLuint      			m_iVBOPosition;             ///< VertexBufferObject used to store position vertex data, used by the VAO
-    GLuint      			m_iVBOColor;               ///< VertexBufferObject used to store position vertex colour, used by the VAO
+    GPUProgram      			m_GPUProgramParticles;
+    GPUProgram      			m_GPUProgramObjects;
 
     //------------------------------------------------------------------------------------
-    glm::vec3   			m_vObjectTranslate;         ///< Store the 3D object translate component
-    glm::vec3   			m_vObjectEulerAngles;       ///< Store the 3D object orientation as euler angles
-
-    glm::mat4   			m_mtxObjectWorld;           ///< Matrix transform, for object -> world coordinates
     glm::mat4   			m_mtxCameraView;            ///< Matrix transform, for world -> camera view coordinates
     glm::mat4   			m_mtxCameraProjection;      ///< Matrix transform, for camera view -> camera projection coordinates
 
-    GLuint      			m_iUniformWorld;            ///< GLSL uniform location for World matrix
     GLuint      			m_iUniformView;             ///< GLSL uniform location for View matrix
     GLuint      			m_iUniformProjection;       ///< GLSL uniform location for Projection matrix
+    GLuint                  m_iUniformSampler;
+
+    GLuint      			m_iUniformViewObj;             ///< GLSL uniform location for View matrix
+    GLuint      			m_iUniformProjectionObj;       ///< GLSL uniform location for Projection matrix
+    GLuint                  m_iUniformSamplerObj;
 
     //------------------------------------------------------------------------------------
     QTime       			m_timer;                    ///< Time used to get elapsed time between 2 frames
@@ -159,16 +118,13 @@ private:
 
     //------------------------------------------------------------------------------------
 
-    GLuint                  m_iTexture;                 ///< TextureObject id, for diffuse texture
-    GLuint                  m_iUniformSampler;      ///< GLSL uniform location for the sampler "u_tex"
-
-    //------------------------------------------------------------------------------------
-    GLuint      			m_iGPUGeometryShaderID;     ///< OpenGL ID for GPU GeometryShader
-
     bool                    m_bAlphaBlend;              ///< Use Alpha Blending ?
 
 
     std::vector<ParticlesRenderer*>     m_particlesRenderers;
+
+    BigQuad                 m_ceiling;
+    BigQuad                 m_floor;
 
     MouseBehaviour          m_mouseBehaviour;
 
@@ -177,63 +133,8 @@ private:
 
 };
 
-//------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------
-// ERROR & DEBUG related
-
-#define DEBUG
-
-// DEBUG_BREAK
-#ifdef  WIN32
-#   define  TP_DEBUG_BREAK()    __debugbreak()
-#else
-#   define  TP_DEBUG_BREAK()    asm("int $3")
-#endif
 
 
-// LOG
-#define TP_LOG( _message, ...)  fprintf( stdout, (_message), __VA_ARGS__ );fflush( stdout )
-
-// ASSERT
-#ifdef DEBUG
-#   define TP_ASSERT(_assert, ...)   \
-        if( !(_assert) ) {  \
-            TP_LOG( "Assertion failed !\n.FILE = '%s'\n.LINE='%d'\n.FUNCTION='%s'\n", __FILE__ , __LINE__, __FUNCTION__);\
-            TP_LOG( __VA_ARGS__ );\
-            TP_DEBUG_BREAK();\
-            assert(_assert); \
-        }
-#else
-#   define TP_ASSERT(_assert, ...)
-#endif
-
-//------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------
-
-
-
-
-//====================================================================================================================================
-
-//class GPUProgram
-//{
-//};
-
-//struct Geometry
-//{
-//};
-
-//struct Model
-//{
-//    struct SubModel
-//    {
-
-
-//    };
-
-
-//    std::vector<SubModel> m_aSubModels;
-//};
 
 
 #endif // __MAIN_H__

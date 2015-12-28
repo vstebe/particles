@@ -5,13 +5,17 @@
 #include <iostream>
 #include <QtGlobal>
 #include <QDebug>
+
 Emetter::Emetter(const ParticleConfiguration &config) :
     _data(NULL),
     _colorData(NULL),
+    _rotationData(NULL),
+    _sizeData(NULL),
+    _config(config),
     _origin(0.f, 0.f, 0.f),
     _isActive(true),
+    _particles(),
     _timeLastCreation(0),
-    _config(config),
     _useCustomAttractPoint(false)
 {
     _data = new glm::vec3[_config.getMaxParticles()];
@@ -162,6 +166,13 @@ void Emetter::update(float time)
 
 
             _particles[i].setPosition(_particles[i].getPosition() + _particles[i].getVelocity() * time);
+
+            if(_particles[i].getPosition().y >= 1.f) {
+                _particles[i].setVelocity(glm::reflect(_particles[i].getVelocity(), glm::vec3(0.f, 1.f, 0.f)));
+            }
+            if(_particles[i].getPosition().y <= -1.f) {
+                _particles[i].setVelocity(glm::reflect(_particles[i].getVelocity(), glm::vec3(0.f, -1.f, 0.f)));
+            }
 
         } else if(_isActive && _timeLastCreation >= _config.getCreationTime()) {
             _particles[i].setLifeTime(_config.getLifeTime());

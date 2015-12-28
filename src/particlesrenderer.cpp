@@ -5,10 +5,16 @@
 
 ParticlesRenderer::ParticlesRenderer(const ParticleConfiguration &config) :
     _emetter            (config),
-    _iAttribColor       (1),
+    _iVAO               (0),
+    _iVBOPosition       (0),
+    _iVBOColor          (0),
+    _iVBORotation       (0),
+    _iVBOSize           (0),
     _iAttribPosition    (0),
+    _iAttribColor       (1),
     _iAttribRotation    (2),
-    _iAttribSize        (3)
+    _iAttribSize        (3),
+    _iTexture           (0)
 {
     initializeOpenGLFunctions();
 
@@ -109,24 +115,24 @@ ParticlesRenderer::ParticlesRenderer(const ParticleConfiguration &config) :
     QImage img0 = img.convertToFormat(QImage::Format_RGBA8888_Premultiplied,Qt::NoOpaqueDetection);
 
     unsigned char* pDataImage0 = img0.scanLine(0);
-qDebug() << "'error7 : " << glGetError();
-   // glEnable(GL_TEXTURE_2D);
-qDebug() << "'error6 : " << glGetError();
+
+    // glEnable(GL_TEXTURE_2D);
+
     // Creates the Texture object
     glGenTextures( 1, & _iTexture );
-qDebug() << "'error3 : " << glGetError();
+
     glBindTexture( GL_TEXTURE_2D, _iTexture );
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-qDebug() << "'error5 : " << glGetError();
+
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, img0.width(), img0.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, pDataImage0 );
     }
     glBindTexture( GL_TEXTURE_2D, 0 );
 
-    qDebug() << "'error : " << glGetError();
+
 }
 
 void ParticlesRenderer::update(float fTimeElapsed)
