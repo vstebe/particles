@@ -55,6 +55,7 @@ public slots:
     void setJsonData(const QString& json);
     void setMouseBehabiour(MouseBehaviour behaviour);
     void setNumberEmetters(int n);
+    void setShowFloorCeil(bool show);
     void update();
 
 private:
@@ -114,11 +115,13 @@ private:
     QTime       			m_timer;                    ///< Time used to get elapsed time between 2 frames
 
     glm::vec3               m_vCameraPosition;          ///< Camera position - in World Space
-    glm::vec3               m_vCameraCenter;
+    glm::vec3               m_vCameraDirection;
 
     //------------------------------------------------------------------------------------
 
     bool                    m_bAlphaBlend;              ///< Use Alpha Blending ?
+
+    bool                    m_bShowFloorCeil;
 
 
     std::vector<ParticlesRenderer*>     m_particlesRenderers;

@@ -13,18 +13,6 @@ in vec4 billColor;
 
 void main (void)
 {
-    // TODO !
     vec4 color = texture(u_tex, texCoord);
-
-    // This allows us to do some Alpha Testing : any fragment with an alpha lower than 0.5 won't be rendered !
-    //if( color.r < 0.5 )
-     //   discard;
-
-
-   // if(billColor == vec3(0,0,0))
-      //  discard;
-
-    // TODO !
     out_fragColor = color * billColor;
-    //out_fragColor = vec4(texCoord.x, texCoord.y, texCoord.x, texCoord.y);
 }

@@ -10,7 +10,7 @@
     },
     "life-time": 1,
     "max-particles": 1000,
-    "creation-time": 0.02,
+    "creation-time": 0.005,
     "color": {
         "r":1,
         "g":1,

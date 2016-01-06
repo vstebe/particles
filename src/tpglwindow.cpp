@@ -18,8 +18,9 @@ TPGLWindow::TPGLWindow() :
     , m_iUniformView        (0)
     , m_iUniformProjection  (0)
     , m_iUniformSampler     (0)
-    , m_vCameraCenter (0,0,-1)
+    , m_vCameraDirection (0,0,-1)
     , m_bAlphaBlend         ( false )
+    , m_bShowFloorCeil      ( false )
     , m_particlesRenderers   (0)
     , m_mouseBehaviour      ( NONE )
     , m_ceiling             ()
@@ -92,8 +93,8 @@ void TPGLWindow::initializeGL()
     m_GPUProgramParticles.createFromFiles("VS.glsl", "GS.glsl", "FS.glsl");
     m_GPUProgramObjects.createFromFiles("VS_obj.glsl", "", "FS_obj.glsl");
 
-    m_ceiling.init("./data/nico.png", 1.f);
-    m_floor.init("./data/nico.png", -1.f);
+    m_ceiling.init("./data/sky.jpg", 1.f);
+    m_floor.init("./data/floor.jpg", -1.f);
 
     getUniformLocations();
 }
@@ -111,7 +112,7 @@ void TPGLWindow::updateMatrices()
 
 
     // View matrix is built from the common "lookAt" paradigm, using the RH (Right-Handed) coordinate system
-    m_mtxCameraView             = glm::lookAtRH( m_vCameraPosition, m_vCameraCenter, vUp );
+    m_mtxCameraView             = glm::lookAtRH( m_vCameraPosition, m_vCameraPosition + m_vCameraDirection, vUp );
 
 }
 
@@ -141,7 +142,7 @@ void TPGLWindow::setJsonData(const QString &json)
 void TPGLWindow::setMouseBehabiour(TPGLWindow::MouseBehaviour behaviour)
 {
     m_mouseBehaviour = behaviour;
-    m_vCameraCenter = glm::vec3(0,0,-1);
+    m_vCameraDirection = glm::vec3(0,0,-1);
     m_vCameraPosition   = glm::vec3(0,0,fCameraZInit);
     if(m_particlesRenderers.size()> 0) {
         setNumberEmetters(m_particlesRenderers.size());
@@ -157,8 +158,10 @@ void TPGLWindow::setNumberEmetters(int n)
         delete m_particlesRenderers[i];
     m_particlesRenderers.clear();
 
-    for(int i=0; i<n; i++)
+    for(int i=0; i<n; i++) {
         m_particlesRenderers.push_back(new ParticlesRenderer(m_particleConfig));
+        m_particlesRenderers.back()->getEmetter()->setUseFloorCeil(m_bShowFloorCeil);
+    }
 
     switch(n) {
         case 1:
@@ -179,6 +182,15 @@ void TPGLWindow::setNumberEmetters(int n)
             m_particlesRenderers[2]->getEmetter()->setOrigin(glm::vec3(0,0,0.33));
             m_particlesRenderers[3]->getEmetter()->setOrigin(glm::vec3(0.33,0,0));
         break;
+    }
+}
+
+void TPGLWindow::setShowFloorCeil(bool show)
+{
+    m_bShowFloorCeil = show;
+
+    for(int i=0; i<m_particlesRenderers.size(); i++) {
+        m_particlesRenderers[i]->getEmetter()->setUseFloorCeil(m_bShowFloorCeil);
     }
 }
 
@@ -233,15 +245,22 @@ void TPGLWindow::paintGL()
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 
 
-    // Starts using the given GPU Program ---------------------------------------------------------
-    m_GPUProgramObjects.bind();
-    {
-        // Sends the uniforms var from the CPU to the GPU -----------------------------------------
-        sendObjectsUniformsToGPU();
+    if(m_bShowFloorCeil) {
 
-        m_ceiling.render();
-        m_floor.render();
+        glDisable( GL_BLEND );
 
+        // Starts using the given GPU Program ---------------------------------------------------------
+        m_GPUProgramObjects.bind();
+        {
+            // Sends the uniforms var from the CPU to the GPU -----------------------------------------
+            sendObjectsUniformsToGPU();
+
+            m_ceiling.render();
+            m_floor.render();
+
+        }
+
+        glEnable( GL_BLEND );
     }
     // Stops using the GPU Program ----------------------------------------------------------------
     m_GPUProgramObjects.unbind();
@@ -278,15 +297,22 @@ void TPGLWindow::resizeGL(int, int)
 }
 
 void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
+
     float x = 2 * fCameraZInit * event->x() / this->width() - fCameraZInit;
     float y = 2 * fCameraZInit * (this->height() - event->y()) / this->height() - fCameraZInit;
 
+    static float lastX = x;
+    static float lastY = y;
+
     glm::vec4 test(0,0,0,1);
     glm::vec4 projected = m_mtxCameraProjection * m_mtxCameraView * test;
-    qDebug() << "projected " << projected.x << " " << projected.y << " " << projected.z << " " << projected.w;
+   // qDebug() << "projected " << projected.x << " " << projected.y << " " << projected.z << " " << projected.w;
 
     glm::vec4 screenVec(x,y, fCameraZInit -  0.19019, fCameraZInit);
     glm::vec3 worldVec(glm::inverse(m_mtxCameraProjection * m_mtxCameraView) * screenVec);
+
+    qDebug() << "move " << worldVec.x << " " << worldVec.y << " " << worldVec.z;
+
 
     for(unsigned int i=0; i<m_particlesRenderers.size(); i++)
         m_particlesRenderers[i]->getEmetter()->setUseCustomAttractPoint(false);
@@ -301,15 +327,20 @@ void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
             m_particlesRenderers[i]->getEmetter()->setCustomAttractPoint(worldVec);
         }
         break;
-    default://nothing to do
+    case MOVE_VIEW:
+        m_vCameraDirection = glm::vec3(
+           cos(y) * sin(1.f - x),
+           sin(y),
+           cos(y) * cos(1.f - x)
+        );
+        updateMatrices();
+        break;
+    default:
         break;
     }
 
-    if(m_mouseBehaviour == MOVE_VIEW) {
-        m_vCameraCenter = worldVec;
-        updateMatrices();
-    }
-
+    lastX = x;
+    lastY = y;
 
 }
 
@@ -322,7 +353,7 @@ void TPGLWindow::keyPressEvent(QKeyEvent* _pEvent)
 
         float   fMoveSpeed          = 0.07f;// * fTimeElapsed;
 
-        glm::vec3 translation = glm::normalize(m_vCameraCenter - m_vCameraPosition);
+        glm::vec3 translation = m_vCameraDirection;
 
         glm::mat4 rotation = glm::rotate(glm::mat4(1.f), 90.0f, glm::vec3(0.0, 1.0, 0.0));
 
@@ -336,21 +367,19 @@ void TPGLWindow::keyPressEvent(QKeyEvent* _pEvent)
             break;
 
         case Qt::Key_Z:
-            m_vCameraPosition += fMoveSpeed * glm::normalize(m_vCameraCenter - m_vCameraPosition);
+            m_vCameraPosition += fMoveSpeed * m_vCameraDirection;
             break;
 
         case Qt::Key_S:
-            m_vCameraPosition -= fMoveSpeed * glm::normalize(m_vCameraCenter - m_vCameraPosition);
+            m_vCameraPosition -= fMoveSpeed * m_vCameraDirection;
             break;
 
         case Qt::Key_Q:
             m_vCameraPosition += fMoveSpeed * test;
-            m_vCameraCenter += fMoveSpeed * test;
             break;
 
         case Qt::Key_D:
             m_vCameraPosition -= fMoveSpeed * test;
-            m_vCameraCenter -= fMoveSpeed * test;
             break;
 
         case Qt::Key_Escape:

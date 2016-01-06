@@ -16,7 +16,8 @@ Emetter::Emetter(const ParticleConfiguration &config) :
     _isActive(true),
     _particles(),
     _timeLastCreation(0),
-    _useCustomAttractPoint(false)
+    _useCustomAttractPoint(false),
+    _useFloorCeil(true)
 {
     _data = new glm::vec3[_config.getMaxParticles()];
     _colorData = new glm::vec4[_config.getMaxParticles()];
@@ -54,6 +55,11 @@ void Emetter::setUseCustomAttractPoint(bool use)
 void Emetter::setCustomAttractPoint(const glm::vec3 &point)
 {
     _customAttractPoint = point;
+}
+
+void Emetter::setUseFloorCeil(bool use)
+{
+    _useFloorCeil = use;
 }
 
 Emetter::~Emetter()
@@ -167,11 +173,15 @@ void Emetter::update(float time)
 
             _particles[i].setPosition(_particles[i].getPosition() + _particles[i].getVelocity() * time);
 
-            if(_particles[i].getPosition().y >= 1.f) {
-                _particles[i].setVelocity(glm::reflect(_particles[i].getVelocity(), glm::vec3(0.f, 1.f, 0.f)));
-            }
-            if(_particles[i].getPosition().y <= -1.f) {
-                _particles[i].setVelocity(glm::reflect(_particles[i].getVelocity(), glm::vec3(0.f, -1.f, 0.f)));
+            if(_useFloorCeil) {
+
+                if(_particles[i].getPosition().y >= 1.f) {
+                    _particles[i].setVelocity(glm::reflect(_particles[i].getVelocity(), glm::vec3(0.f, 1.f, 0.f)));
+                }
+                if(_particles[i].getPosition().y <= -1.f) {
+                    _particles[i].setVelocity(glm::reflect(_particles[i].getVelocity(), glm::vec3(0.f, -1.f, 0.f)));
+                }
+
             }
 
         } else if(_isActive && _timeLastCreation >= _config.getCreationTime()) {

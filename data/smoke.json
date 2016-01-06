@@ -2,7 +2,7 @@
     "forces" : [
         {"x":0, "y":0, "z":0}
     ],
-    "size": {"min":0, "max":0.2},
+    "size": {"min":0.2, "max":0.6},
     "image": "data/smoke.png",
     "initial-speed": {
         "x":{"min":-0.01, "max":0.01},

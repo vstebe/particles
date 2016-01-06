@@ -2,14 +2,16 @@
 
 #include <QImage>
 #include <QDebug>
-float size = 10.f;
+float size = 100.f;
 
 BigQuad::BigQuad() :
     _iVAO               (0),
     _iVBOPosition       (0),
     _iVBONormal         (0),
+    _iVBOTexCoord       (0),
     _iAttribPosition    (0),
     _iAttribNormal      (1),
+    _iAttribTexCoord    (2),
     _iTexture           (0)
 {
 
@@ -32,6 +34,11 @@ void BigQuad::init(const QString& textureFilename, float height)
 
     for(int i=0; i<4; i++)
         _normals[i] = normal;
+
+    _texCoords[0] = glm::vec2(0.f, 0.f);
+    _texCoords[1] = glm::vec2(0.f, 1.f);
+    _texCoords[2] = glm::vec2(1.f, 1.f);
+    _texCoords[3] = glm::vec2(1.f, 0.f);
 
     // Creates 1 Buffer object for POSITIONS ------------------------------------------------------------------------
     glGenBuffers(1, &_iVBOPosition);
@@ -59,6 +66,20 @@ void BigQuad::init(const QString& textureFilename, float height)
     // Unbinds the Buffer, we are done working on it !
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+
+    // Creates 1 Buffer object for TEX ------------------------------------------------------------------------
+    glGenBuffers(1, &_iVBOTexCoord);
+
+    // Binds the Buffer, to say "we will work on this one from now"
+    glBindBuffer(GL_ARRAY_BUFFER, _iVBOTexCoord);
+    {
+        // Defines the type of Buffer data, the size in bytes, fills it with the given positions,
+        //      and finally specifies what kind of Draws we will do (so that the driver can optimize the how it will access it)
+        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(glm::vec2), NULL, GL_STREAM_DRAW);
+    }
+    // Unbinds the Buffer, we are done working on it !
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     // Creates 1 VAO
     glGenVertexArrays( 1, &_iVAO );
 
@@ -78,6 +99,13 @@ void BigQuad::init(const QString& textureFilename, float height)
         glEnableVertexAttribArray( _iAttribNormal );
         // Gives the right params
         glVertexAttribPointer( _iAttribNormal, 3, GL_FLOAT, GL_FALSE, 0, 0 );
+
+        // Binds the Buffer, to say "we will work on this one from now"
+        glBindBuffer( GL_ARRAY_BUFFER, _iVBOTexCoord );
+        // Enables the attribute id used for vtx_position
+        glEnableVertexAttribArray( _iAttribTexCoord );
+        // Gives the right params
+        glVertexAttribPointer( _iAttribTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0 );
     }
     // UnBinds the VAO, we are done working on it !
     glBindVertexArray(0);
@@ -110,10 +138,13 @@ void BigQuad::init(const QString& textureFilename, float height)
             glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(glm::vec3), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
             glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(glm::vec3), _points);
 
+    glBindBuffer(GL_ARRAY_BUFFER, _iVBONormal);
+            glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(glm::vec3), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
+            glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(glm::vec3), _normals);
 
-            glBindBuffer(GL_ARRAY_BUFFER, _iVBONormal);
-                    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(glm::vec3), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
-                    glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(glm::vec3), _normals);
+    glBindBuffer(GL_ARRAY_BUFFER, _iVBOTexCoord);
+            glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(glm::vec2), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
+            glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(glm::vec2), _texCoords);
 }
 
 
@@ -139,6 +170,7 @@ BigQuad::~BigQuad()
 {
     glDeleteBuffers(1, & _iVBOPosition);
     glDeleteBuffers(1, &_iVBONormal);
+    glDeleteBuffers(1, &_iVBOTexCoord);
     glDeleteTextures( 1, & _iTexture );
 
     glDeleteVertexArrays(1, & _iVAO);

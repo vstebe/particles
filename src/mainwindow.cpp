@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     connect(this, SIGNAL(jsonChanged(QString)), _glWindow, SLOT(setJsonData(QString)));
+
+    connect(ui->checkFloorCeil, SIGNAL(clicked(bool)), _glWindow, SLOT(setShowFloorCeil(bool)));
 }
 
 MainWindow::~MainWindow()

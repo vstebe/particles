@@ -36,6 +36,8 @@ public:
 
     void setCustomAttractPoint(const glm::vec3& point);
 
+    void setUseFloorCeil(bool use);
+
     glm::vec3 mouse;
 
     ~Emetter();
@@ -59,6 +61,8 @@ protected:
 
     bool _useCustomAttractPoint;
     glm::vec3 _customAttractPoint;
+
+    bool _useFloorCeil;
 };
 
 #endif // EMETTER_H

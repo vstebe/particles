@@ -15,14 +15,17 @@ public:
 protected:
     glm::vec3   _points[4];
     glm::vec3   _normals[4];
+    glm::vec2   _texCoords[4];
 
     GLuint  _iVAO;
 
     GLuint  _iVBOPosition;
     GLuint  _iVBONormal;
+    GLuint  _iVBOTexCoord;
 
     GLuint  _iAttribPosition;
     GLuint  _iAttribNormal;
+    GLuint  _iAttribTexCoord;
 
     GLuint  _iTexture;
 };
