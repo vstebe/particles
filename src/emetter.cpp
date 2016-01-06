@@ -19,6 +19,7 @@ Emetter::Emetter(const ParticleConfiguration &config) :
     _useCustomAttractPoint(false),
     _useFloorCeil(true)
 {
+    //Creating the arrays used in VBOs
     _data = new glm::vec3[_config.getMaxParticles()];
     _colorData = new glm::vec4[_config.getMaxParticles()];
     _rotationData = new GLfloat[_config.getMaxParticles()];
@@ -26,6 +27,7 @@ Emetter::Emetter(const ParticleConfiguration &config) :
 
     _particles.clear();
 
+    //Data init
     for(int i = 0; i<_config.getMaxParticles(); i++) {
         _data[i] = glm::vec3(0.f, 1.f, 0.f);
         _rotationData[i] = 0.f;
@@ -84,8 +86,13 @@ glm::vec3 Emetter::randomVec3(const ParticleConfiguration::Range<glm::vec3> &vec
 }
 
 
+
 float Emetter::getAlphaFromLife(float life)
 {
+    //[0%  -  25%] fade
+    //[25% -  75%] visible
+    //[75% - 100%] fade
+
     float progress = life / _config.getLifeTime();
     progress = 1 - progress;
 
@@ -143,78 +150,106 @@ void Emetter::update(float time)
 
     glm::vec3 globalForce(0.f, 0.f, 0.f);
 
+    //Add all static forces (wind, gravity etc) specified in the configuration
     for(int i=0; i<_config.getForces().size(); i++) {
         globalForce += _config.getForces()[i];
     }
-
     globalForce *= time;
 
+    //Set the active attract point if the emitter uses it. It's either the point from the configuration or the one set with setCustomAttractPoint();
     glm::vec3 attractForcePoint;
     if(_useCustomAttractPoint)
         attractForcePoint = _customAttractPoint;
     else
         attractForcePoint = _config.getAttractForcePoint();
 
-    int nbAlives = 0;
-
+    //Iterates over the particles
     for(int i=0; i<_particles.size(); i++) {
+        //When the particle is alive
         if(_particles[i].isAlive()) {
+            //Updates lifetime
             _particles[i].setLifeTime(_particles[i].getLifeTime() - time);
+            //Updates speed from static forces
             _particles[i].setVelocity(_particles[i].getVelocity() + globalForce);
 
+            //Attract point
             if(_config.isAttractForceSet()) {
                 glm::vec3 attractForce = time * glm::normalize(attractForcePoint - _origin - _particles[i].getPosition());
-                attractForce *= _config.getAttractForceNorm();
+                //Simple attract force
+                if(_config.getAttractForceNorm() != -1.f) {
+                    attractForce *= _config.getAttractForceNorm();
+                //Experimental attract force, simulates a gravity point
+                } else {
+                    float dis = glm::distance(attractForcePoint, _particles[i].getPosition());
+                    float norm =  1.f / (dis * dis);;
+                    if(norm > 3.f) norm = 3.f;
+
+
+                    attractForce *= norm;
+                }
+                //Updates the velocity
                 _particles[i].setVelocity(_particles[i].getVelocity() + attractForce);
             }
 
+            //Updates rotation
             _particles[i].setRotation(_particles[i].getRotation() + _particles[i].getRotationVelocity() * time);
 
-
+            //Updates position
             _particles[i].setPosition(_particles[i].getPosition() + _particles[i].getVelocity() * time);
 
+            //If wanted, the particle must bounce if it hits the floor or the ceil.
             if(_useFloorCeil) {
 
-                if(_particles[i].getPosition().y >= 1.f) {
+                if(_particles[i].getPosition().y >= 1.f) { //Ceil
                     _particles[i].setVelocity(glm::reflect(_particles[i].getVelocity(), glm::vec3(0.f, 1.f, 0.f)));
                 }
-                if(_particles[i].getPosition().y <= -1.f) {
+                if(_particles[i].getPosition().y <= -1.f) { //Floor
                     _particles[i].setVelocity(glm::reflect(_particles[i].getVelocity(), glm::vec3(0.f, -1.f, 0.f)));
                 }
-
             }
 
+        //The particle is dead, but we want to create a new particle -> init
         } else if(_isActive && _timeLastCreation >= _config.getCreationTime()) {
+            //Set the initial lifetime
             _particles[i].setLifeTime(_config.getLifeTime());
+
+            //Set the initial velocity (random)
             _particles[i].setVelocity(randomVec3(_config.getInitialSpeed()));
+
+            //Set the initial position (emitter origin)
             _particles[i].setPosition(_origin);
 
+            //Rotation
             _particles[i].setRotation(0.f);
 
+            //Color
             _particles[i].setColor(randomVec3(_config.getColor()));
 
+            //Size (random)
             _particles[i].setSize(fRandom(_config.getSize().min, _config.getSize().max));
+            //Death size (random)
             _particles[i].setDeathSize(fRandom(_config.getDeathSize().min, _config.getDeathSize().max));
 
+            //We just created a particle : update the generator time
             _timeLastCreation -= _config.getCreationTime();
+        //The particle is dead and we don't want to create a new one. Hiding the particle
         } else {
             _particles[i].setPosition(glm::vec3(-99,-99,-99));
         }
 
-
+        //Update arrays for VBO
         _data[i] = _particles[i].getPosition();
         _colorData[i] = glm::vec4(_particles[i].getColor(), (GLfloat) getAlphaFromLife(_particles[i].getLifeTime()));
         _rotationData[i] = _particles[i].getRotation();
 
+        //Set particle size
         float progress = _particles[i].getLifeTime() / _config.getLifeTime();
         progress = 1 - progress;
 
         _sizeData[i] = _particles[i].getSize() + progress * (_particles[i].getDeathSize() - _particles[i].getSize());
 
-        if(_particles[i].isAlive()) nbAlives++;
     }
 
-    //qDebug() << _colorData[0].a;
 
 
 }

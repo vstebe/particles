@@ -4,12 +4,28 @@
 #include <QOpenGLFunctions_3_3_Core>
 #include <glm/glm.hpp>
 
+/**
+ * @brief 3D object representing a simple horizontal plane with a texture
+ */
 class BigQuad :  protected QOpenGLFunctions_3_3_Core
 {
 public:
+    /**
+     * @brief Creates the quad
+     */
     BigQuad();
+
+    /**
+     * @brief Init VBOs with a texture and the plane height
+     * @param textureFilename filename of the texture to use
+     * @param height height of the plane
+     */
     void init(const QString& textureFilename, float height);
     ~BigQuad();
+
+    /**
+     * @brief Draw the quad
+     */
     void render();
 
 protected:

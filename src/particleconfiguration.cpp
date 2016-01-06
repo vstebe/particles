@@ -18,7 +18,7 @@ ParticleConfiguration::ParticleConfiguration() :
     _color(Range<glm::vec3>(glm::vec3(1.f, 1.f, 1.f), glm::vec3(1.f, 1.f, 1.f))),
     _attractForceSet(false),
     _attractForcePoint(0),
-    _attractForceNorm(0.f),
+    _attractForceNorm(-1.f),
     _rotationVelocity(0.f)
 {
 

@@ -7,7 +7,9 @@
 #include "utils.h"
 
 
-
+/**
+ * @brief Handles a GPU program : shaders compilations and bindings.
+ */
 class GPUProgram : protected QOpenGLFunctions_3_3_Core
 {
 public:
@@ -16,22 +18,41 @@ public:
     /// DTOR
     virtual ~GPUProgram();
 
-    /// Returns the GLSL id of this GPU Program
+    /**
+     * @brief Returns the GLSL id of this GPU Program
+     * @return  glsl id
+     */
     inline GLuint   getID() const;
 
-    /// Returns the GLSL location of the uniform var with the given name
+    /**
+    * @brief Returns the GLSL location of the uniform var with the given name
+    * @param _strName uniform name
+    * @return glsl uniform id
+    */
     inline GLuint   getUniformLocation( const char* _strName );
 
-    /// Starts using this GPU Program
+    /**
+     * @brief Starts using this GPU Program
+     */
     void            bind();
 
-    /// Stops using this GPU Program
+    /**
+     * @brief Stops using this GPU Program
+     */
     void            unbind();
 
-    /// Creates a GPU Program from the given shader files
+    /**
+     * @brief Creates a GPU Program from the given shader files
+     * @param _rstrVertexShaderPath vertex shader filename
+     * @param _rstrGeometryShaderPath geometry shader filename
+     * @param _rstrFragmentShaderPath fragment shader filename
+     * @return true if no error occured
+     */
     bool            createFromFiles( const std::string& _rstrVertexShaderPath, const std::string& _rstrGeometryShaderPath , const std::string& _rstrFragmentShaderPath );
 
-    /// Destroys this GPU Program
+    /**
+     * @brief Destroys this GPU Program
+     */
     void            destroy();
 
 private:
