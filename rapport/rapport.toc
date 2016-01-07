@@ -1,0 +1,22 @@
+\select@language {french}
+\contentsline {section}{\numberline {1}Introduction}{2}
+\contentsline {section}{\numberline {2}Principe de fonctionnement}{2}
+\contentsline {subsection}{\numberline {2.1}CPU ou GPU ?}{2}
+\contentsline {subsection}{\numberline {2.2}Performances}{2}
+\contentsline {subsection}{\numberline {2.3}Configuration}{2}
+\contentsline {subsubsection}{\numberline {2.3.1}Les param\IeC {\`e}tres obligatoires}{2}
+\contentsline {subsubsection}{\numberline {2.3.2}Les param\IeC {\`e}tres facultatifs}{2}
+\contentsline {subsubsection}{\numberline {2.3.3}Exemple}{3}
+\contentsline {subsubsection}{\numberline {2.3.4}Parsing}{3}
+\contentsline {subsection}{\numberline {2.4}Fen\IeC {\^e}trage}{3}
+\contentsline {section}{\numberline {3}Gestion de la physique}{4}
+\contentsline {subsection}{\numberline {3.1}Forces en jeu}{4}
+\contentsline {paragraph}{Force d'attraction}{4}
+\contentsline {subsection}{\numberline {3.2}Acc\IeC {\'e}l\IeC {\'e}ration}{4}
+\contentsline {section}{\numberline {4}Les effets}{5}
+\contentsline {subsection}{\numberline {4.1}Feu}{5}
+\contentsline {subsection}{\numberline {4.2}Fum\IeC {\'e}e}{5}
+\contentsline {subsection}{\numberline {4.3}Brouillard}{5}
+\contentsline {subsection}{\numberline {4.4}Atome}{5}
+\contentsline {section}{\numberline {5}Am\IeC {\'e}liorations possibles}{5}
+\contentsline {section}{\numberline {6}Conclusion}{5}
