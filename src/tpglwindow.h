@@ -33,29 +33,69 @@
 
 //====================================================================================================================================
 
+/**
+ * @brief Represents the 3D scene in an opengl context
+ */
 class TPGLWindow : public QOpenGLWidget,  protected QOpenGLFunctions_3_3_Core
 {
     Q_OBJECT
 public:
+    /**
+     * @brief Action executed when the user moves the mouse
+     */
     enum MouseBehaviour {NONE, MOVE_VIEW, MOVE_EMETTER, MOVE_ATTRACT_POINT};
 
+    /**
+     * @brief Constructor
+     */
     TPGLWindow();
     virtual ~TPGLWindow();
 
+    /**
+     * @brief Init the openGL context and load the programs
+     */
     virtual void initializeGL();
 
+    /**
+     * @brief Draw the emitters, the ceil and the floor if wanted
+     */
     virtual void paintGL();
 
-
-
+    /**
+     * @brief Reset the viewport when the widget is resized
+     * @param w
+     */
     virtual void resizeGL(int w, int);
 
 
 public slots:
+    /**
+     * @brief Reset the particles renderer with a new json configuration
+     * @param json configuration to use
+     */
     void setJsonData(const QString& json);
+
+    /**
+     * @brief Set the action to trigger when the mouse is moved
+     * @param behaviour either camera move, emitter move, attract point move or nothing
+     */
     void setMouseBehabiour(MouseBehaviour behaviour);
+
+    /**
+     * @brief Set the number of emitters to draw
+     * @param n number of emitters
+     */
     void setNumberEmetters(int n);
+
+    /**
+     * @brief Set if floor&ceil must be displayed
+     * @param show true if the floor and the ceil is draw, false otherwise
+     */
     void setShowFloorCeil(bool show);
+
+    /**
+     * @brief Updates the emitters
+     */
     void update();
 
 private:

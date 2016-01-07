@@ -1,0 +1,27 @@
+{
+       "attract-force": {
+        "point": {"x":0.4, "y":0, "z":0},
+        "norm": -1
+    },
+"size": {"min":0, "max":0.1},
+    "image": "data/particle.png",
+    "initial-speed": {
+        "x":{"min":-0.05, "max":0.05},
+        "y":{"min":0.5, "max":0.5},
+        "z":{"min":0, "max":0}
+    },
+    "life-time": 50,
+    "max-particles": 2000,
+    "creation-time": 0.05,
+    "color": {
+        "r":1,
+        "g":1,
+        "b":1
+    },
+    "death-size": 0.1,
+    "color": {
+        "r":{"min":0, "max":1},
+        "g":{"min":0, "max":1},
+        "b":{"min":0, "max":1}
+    }
+}

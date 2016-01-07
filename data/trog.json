@@ -1,0 +1,26 @@
+{
+    "attract-force": {
+        "point": {"x":0, "y":0.2, "z":0},
+        "norm": 5
+    },
+    "image": "data/trog.jpg",
+    "initial-speed": {
+        "x":{"min":-0.05, "max":0.05},
+        "y":{"min":-0.05, "max":0.05},
+        "z":{"min":-0.05, "max":0.05}
+    },
+    "life-time": 2,
+    "max-particles": 2000,
+    "creation-time": 0.5,
+    "color": {
+        "r":{"min":0, "max":1},
+        "g":{"min":0, "max":1},
+        "b":{"min":0, "max":1}
+    },
+    "size": {"min":0.5, "max":1},
+"rotation-velocity": 0.5, "color": {
+        "r":{"min":0, "max":1},
+        "g":{"min":0, "max":1},
+        "b":{"min":0, "max":1}
+    }
+}
