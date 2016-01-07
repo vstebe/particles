@@ -198,45 +198,18 @@ void TPGLWindow::setShowFloorCeil(bool show)
 void TPGLWindow::paintGL()
 {
 
+    // Disables Depth Test --------------------------------------------------------------------------
+    glDisable( GL_DEPTH_TEST );
 
-    // Specifies the viewport size -----------------------------------------------------------------
-    //const float retinaScale = devicePixelRatio();
-   //glViewport( 0, 0, 800 * retinaScale, 400 * retinaScale );
+    // Enables Depth Write -------------------------------------------------------------------------
+    glDepthMask( GL_FALSE );
 
-    // Specify winding order Counter ClockZise (even though it's default on OpenGL) ----------------
-    glFrontFace( GL_CCW );
+    // Enables Alpha Blending ----------------------------------------------------------------------
+    glEnable( GL_BLEND );
 
-    // Enables (Back) Face Culling -----------------------------------------------------------------
-    //glEnable( GL_CULL_FACE );
-    //glCullFace( GL_BACK );
+    // Blend function to use
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 
-
-    if( m_bAlphaBlend )
-    {
-        // Disables Depth Test --------------------------------------------------------------------------
-        glDisable( GL_DEPTH_TEST );
-
-        // Enables Depth Write -------------------------------------------------------------------------
-        glDepthMask( GL_FALSE );
-
-        // Enables Alpha Blending ----------------------------------------------------------------------
-        glEnable( GL_BLEND );
-    //    glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    }
-    else
-    {
-        // Disables Depth Test --------------------------------------------------------------------------
-        glDisable( GL_DEPTH_TEST );
-
-        // Enables Depth Write -------------------------------------------------------------------------
-        glDepthMask( GL_FALSE );
-
-        // Enables Alpha Blending ----------------------------------------------------------------------
-        glEnable( GL_BLEND );
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE );
-    //    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    }
 
     // Specify the color to use when clearing theframebuffer --------------------------------------
     glClearColor( 0.2f, 0.1f, 0.2f, 0.0f );
@@ -245,6 +218,7 @@ void TPGLWindow::paintGL()
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 
 
+    //If the user wants to see a floor and a ceil
     if(m_bShowFloorCeil) {
 
         glDisable( GL_BLEND );
@@ -298,36 +272,36 @@ void TPGLWindow::resizeGL(int, int)
 
 void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
 
+    //Transform the mouse coordinates in widget space into opengl space
     float x = 2 * fCameraZInit * event->x() / this->width() - fCameraZInit;
     float y = 2 * fCameraZInit * (this->height() - event->y()) / this->height() - fCameraZInit;
 
-    static float lastX = x;
-    static float lastY = y;
-
-    glm::vec4 test(0,0,0,1);
-    glm::vec4 projected = m_mtxCameraProjection * m_mtxCameraView * test;
-   // qDebug() << "projected " << projected.x << " " << projected.y << " " << projected.z << " " << projected.w;
-
+    //Position of mouse with a depth. Match with a projected point
     glm::vec4 screenVec(x,y, fCameraZInit -  0.19019, fCameraZInit);
+
+    //Reverse all matrices to have a point in world space
     glm::vec3 worldVec(glm::inverse(m_mtxCameraProjection * m_mtxCameraView) * screenVec);
 
-    qDebug() << "move " << worldVec.x << " " << worldVec.y << " " << worldVec.z;
-
-
+    //Reinit the usage of a custom attract point
     for(unsigned int i=0; i<m_particlesRenderers.size(); i++)
         m_particlesRenderers[i]->getEmetter()->setUseCustomAttractPoint(false);
+
+    //Do the actual action when the mouse is moved
     switch(m_mouseBehaviour) {
     case MOVE_EMETTER:
-            for(unsigned int i=0; i<m_particlesRenderers.size(); i++)
-                m_particlesRenderers[i]->getEmetter()->setOrigin(worldVec);
+        //Change the origin of each emitter
+        for(unsigned int i=0; i<m_particlesRenderers.size(); i++)
+            m_particlesRenderers[i]->getEmetter()->setOrigin(worldVec);
         break;
     case MOVE_ATTRACT_POINT:
+        //Set the attract point to the mouse position
         for(unsigned int i=0; i<m_particlesRenderers.size(); i++) {
             m_particlesRenderers[i]->getEmetter()->setUseCustomAttractPoint(true);
             m_particlesRenderers[i]->getEmetter()->setCustomAttractPoint(worldVec);
         }
         break;
     case MOVE_VIEW:
+        //Edit the camera direction
         m_vCameraDirection = glm::vec3(
            cos(y) * sin(1.f - x),
            sin(y),
@@ -338,10 +312,6 @@ void TPGLWindow::mouseMoveEvent(QMouseEvent * event) {
     default:
         break;
     }
-
-    lastX = x;
-    lastY = y;
-
 }
 
 //====================================================================================================================================
@@ -358,7 +328,7 @@ void TPGLWindow::keyPressEvent(QKeyEvent* _pEvent)
         glm::mat4 rotation = glm::rotate(glm::mat4(1.f), 90.0f, glm::vec3(0.0, 1.0, 0.0));
 
         glm::vec3 test = glm::vec3(rotation * glm::vec4(translation, 1.f));
-        qDebug() << test.x << " " << test.y << " " << test.z;
+
         // handle key press to move the 3D object
         switch( _pEvent->key() )
         {

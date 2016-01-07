@@ -27,50 +27,53 @@ ParticleConfiguration::ParticleConfiguration() :
 ParticleConfiguration::ParticleConfiguration(const QString& json)
 {
 
+    //Load the JSON Document
     QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
-
     QJsonObject root = doc.object();
-    QJsonArray forces = root["forces"].toArray();
 
+    //Get forces
+    QJsonArray forces = root["forces"].toArray();
     for(int i=0; i<forces.size(); i++) {
         QJsonObject jsonForce = forces[i].toObject();
          _forces.append(parseVec3(jsonForce));
     }
 
+    //Get the initial speed
     if(root["initial-speed"].toObject()["x"].isDouble()) {
+        //If the user gave a range
         glm::vec3 value = parseVec3(root["initial-speed"].toObject());
         _initialSpeed = Range<glm::vec3>(value,value);
     } else {
+        //If it's not a range
         _initialSpeed = parseRangeVec3(root["initial-speed"].toObject());
     }
 
-
+    //Main parameters
     _image = root["image"].toString();
-
     _lifeTime = (float) root["life-time"].toDouble();
-
     _maxParticles = root["max-particles"].toInt();
-
     _creationTime = (float) root["creation-time"].toDouble();
 
-
-    if(root["attract-force"].isObject()) {
+    //Get the attract force
+    if(root["attract-force"].isObject()) { //If an attract force is set
         _attractForceSet = true;
         _attractForcePoint = parseVec3(root["attract-force"].toObject()["point"].toObject());
         _attractForceNorm = root["attract-force"].toObject()["norm"].toDouble();
-    } else {
+    } else { //The attract force is not set
         _attractForceSet = false;
     }
 
+    //Rotation paramaters
     _rotationVelocity = 0.f;
     if(root["rotation-velocity"].isDouble())
         _rotationVelocity = root["rotation-velocity"].toDouble();
 
+    //Size parameters
     _size = Range<float>(0.1f, 0.1f);
-    if(root["size"].isObject()) {
+    if(root["size"].isObject()) { //Range
         _size = Range<float>(root["size"].toObject()["min"].toDouble(),
                              root["size"].toObject()["max"].toDouble());
-    } else if(root["size"].isDouble()) {
+    } else if(root["size"].isDouble()) {//Not range
         _size = Range<float>(root["size"].toDouble(), root["size"].toDouble());
     }
 
@@ -82,6 +85,7 @@ ParticleConfiguration::ParticleConfiguration(const QString& json)
         _deathSize = Range<float>(root["death-size"].toDouble(), root["death-size"].toDouble());
     }
 
+    //Colors parameters
     _color = Range<glm::vec3>(glm::vec3(1.f,1.f,1.f),glm::vec3(1.f,1.f,1.f));
     if(root["color"].isObject()) {
         _color = parseRangeVec3(root["color"].toObject());
