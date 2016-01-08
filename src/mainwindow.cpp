@@ -24,7 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->treeView->setModel(model);
         model->setNameFilters(QStringList("*.json"));
         model->setNameFilterDisables(false);
-        ui->treeView->setRootIndex(model->setRootPath("../data"));
+        ui->treeView->setRootIndex(model->setRootPath(QDir(qApp->applicationDirPath().append("/data")).absolutePath()));
+
+
         for(int i=1; i<model->columnCount(); i++)
             ui->treeView->setColumnHidden(i, true);
 
@@ -66,7 +68,7 @@ void MainWindow::openFile(const QString &filename)
 
 void MainWindow::openJsonFile()
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Open JSON File", NULL, "JSON File (*.json)");
+    QString filename = QFileDialog::getOpenFileName(this, "Open JSON File", QDir(qApp->applicationDirPath().append("/data")).absolutePath(), "JSON File (*.json)");
     openFile(filename);
 }
 
@@ -86,7 +88,7 @@ void MainWindow::apply()
 
 void MainWindow::createFile()
 {
-    QString filename = QFileDialog::getSaveFileName(this, "Open JSON File", NULL, "JSON File (*.json)");
+    QString filename = QFileDialog::getSaveFileName(this, "Open JSON File", QDir(qApp->applicationDirPath().append("/data")).absolutePath(), "JSON File (*.json)");
     QFile file(filename);
     file.open(QIODevice::WriteOnly);
     file.close();
